@@ -25,7 +25,7 @@ abundance_matrix <- function(IonGroup, SummedIsotopes, .Threshold = NULL) {
   #################
   
   # Get proteoform names and remove the unmodified 
-  Names <- SummedIsotopes$SummedIsotopes$Proteoform %>% unique() %>% .[.!="Unmodified"]
+  Names <- SummedIsotopes$SummedIsotopes$Proteoform %>% unique() %>% .[.!="UnmodifiedSequence"]
 
   # Get changing positions
   Positions <- do.call(rbind, lapply(Names, function(Name) {
