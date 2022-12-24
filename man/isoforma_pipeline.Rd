@@ -4,14 +4,36 @@
 \alias{isoforma_pipeline}
 \title{Run the main isoforma function}
 \usage{
-isoforma_pipeline(parameters_path, mzML_path, output_path)
+isoforma_pipeline(
+  unmodified_sequence,
+  modifications,
+  rt_start,
+  rt_end,
+  mzML_path,
+  output_path,
+  mass_window = 10,
+  mz_round = 3,
+  correlation_score = 0.7
+)
 }
 \arguments{
-\item{parameters_path}{The path to the parameters file. Required.}
+\item{unmodified_sequence}{The unmodified peptide sequence. Required.}
+
+\item{modifications}{List of modifications to test. See ?create_modifications_object for example. Required.}
+
+\item{rt_start}{The retention time at which to start summing applicable MS2 spectra. Required.}
+
+\item{rt_end}{The retetntion time at which to stop summing applicable MS2 spectra. Required.}
 
 \item{mzML_path}{The path to the mzML file. Required.}
 
 \item{output_path}{The path to output the isoforma results folder. Default is same as mzML_path.}
+
+\item{mass_window}{m/z values to sum isotopes over. Written Daltons and is applied as -/+ 10 Da. Default is 10.}
+
+\item{mz_round}{Decimal place that binned m/z values should be rounded to in summing spectra. Default is 3.}
+
+\item{correlation_score}{Range is 0-1 for the Isotope Correlation Score. Applies only when there's 2+ isotopes.}
 }
 \description{
 Run the main isoforma function
