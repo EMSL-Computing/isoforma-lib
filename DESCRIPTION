@@ -1,0 +1,33 @@
+Package: isoforma
+Title: Relative quantitation of proteoforms with MS2 fragmentation patterns
+Version: 0.1.0
+Authors@R: 
+    person(given = "David",
+           family = "Degnan",
+           role = c("aut", "cre"),
+           email = "david.degnan@pnnl.gov")
+Description: Quantitate proteoforms detected in top-down data with an MS2 approach.
+License: license.txt
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports: 
+    pspecterlib,
+    xlsx,
+    dplyr,
+    tidyr,
+    rawrr,
+    purrr,
+    data.table,
+    stringr,
+    trelliscopejs,
+    ggplot2,
+    plotly,
+    magrittr,
+    foreach,
+    parallel,
+    doParallel
+VignetteBuilder: knitr
+Depends: 
+    R (>= 4.0)
