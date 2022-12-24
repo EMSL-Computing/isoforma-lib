@@ -73,7 +73,7 @@ sum_isotopes <- function(IsoformaFragments, Charges = 1:100) {
     #  )
     
     SummedIntensities <- Fragments %>%
-      group_by(Ion) %>%
+      dplyr::group_by(Ion) %>%
       tidyr::nest() %>%
       dplyr::mutate(
         `Summed Intensity` = purrr::map(data, function(x) {sum(x$`Intensity Experimental`)}) %>% unlist(),

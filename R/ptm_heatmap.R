@@ -45,7 +45,7 @@ ptm_heatmap <- function(IsoformaFragments) {
         "Sample" = paste0(Name, "_", lapply(Group, function(x) {strsplit(x, "_") %>% unlist() %>% head(1)}) %>% unlist()),
         "Position" = lapply(Group, function(x) {strsplit(x, "_") %>% unlist() %>% tail(1)}) %>% unlist() %>% as.numeric()
       ) %>%
-      select(-Group)
+      dplyr::select(-Group)
     
     return(Heatmap)
     

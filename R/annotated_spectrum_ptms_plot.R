@@ -68,14 +68,6 @@ annotated_spectrum_ptms_plot <- function(SummedSpectra, IsoformaFragments) {
     # Pull fragments
     FragDF <- IsoformaFragments[[pos]]
     
-    # Get maximum "c" position to plot
-    #maxPos <- names(IsoformaFragments)[pos] %>% 
-    #  strsplit("&") %>% 
-    #  unlist() %>% 
-    #  gsub(pattern = "[^0-9.-]", replacement = "") %>% 
-    #  as.numeric() %>% 
-    #  max()
-    
     # Subset fragment dataframe
     FragDF <- FragDF[FragDF$Type == "c",]
     
@@ -89,7 +81,7 @@ annotated_spectrum_ptms_plot <- function(SummedSpectra, IsoformaFragments) {
                                                              FragDF$`M/Z Experimental` + 1e-12), "Intensity" = 0)
       
       # Bind and order
-      FragDF <- bind_rows(Frag0, FragDF)
+      FragDF <- dplyr::bind_rows(Frag0, FragDF)
       FragDF <- FragDF[order(FragDF$`M/Z Experimental`),]
       
       # Make plot

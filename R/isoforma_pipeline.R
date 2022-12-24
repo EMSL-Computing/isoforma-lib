@@ -39,7 +39,7 @@ isoforma_pipeline <- function(unmodified_sequence,
   if (grepl(".mzML", mzML_path, fixed = TRUE) == FALSE) {
     stop("mzML_path must be a mzML file.")
   }
-  ScanMetadata <- get_scan_metadata(mzML_path)
+  ScanMetadata <- pspecterlib::get_scan_metadata(mzML_path)
   
   ##################
   ## RUN ISOFORMA ##
@@ -63,17 +63,17 @@ isoforma_pipeline <- function(unmodified_sequence,
   ScanNumbers <- ScanNums[[1]]
   ExactMass <- ScanNums[[2]]
   if (is.null(ScanNumbers) | any(TRUE %in% ScanNumbers$Use) == FALSE) {
-    write.table("No MS2 Scan Numbers detected.", file.path(out, "Message.txt"))
+    utils::write.table("No MS2 Scan Numbers detected.", file.path(out, "Message.txt"))
     return(NULL)
   }
-  write.csv(ScanNumbers, file = file.path(out, "ScanNumbers.csv"), row.names = F, quote = F)
+  utils::write.csv(ScanNumbers, file = file.path(out, "ScanNumbers.csv"), row.names = F, quote = F)
   
   # 2. Sum Spectra
   SumSpectra <- sum_spectra(ScanMetadata = ScanMetadata,
                             ScanNumbers = ScanNumbers$`Scan Number`[ScanNumbers$Use],
                             MZRound = mz_round,
                             Percent = 100)
-  write.csv(SumSpectra, file = file.path(out, "SumSpectra.csv"), row.names = F, quote = F)
+  utils::write.csv(SumSpectra, file = file.path(out, "SumSpectra.csv"), row.names = F, quote = F)
   write_mgf_simple(round(SumSpectra$`M/Z`, 4), round(SumSpectra$Intensity, 4), file.path(out, "SumSpectra.mgf"),
                    title = strsplit(out, "/", fixed = T) %>% unlist() %>% tail(1),
                    pepmass = ExactMass, charge = paste0(max(ScanNumbers$`Precursor Charge`), "+"), 
@@ -98,11 +98,11 @@ isoforma_pipeline <- function(unmodified_sequence,
   
   # 5. Calculate abundance matrix
   AbundanceMatrix <- abundance_matrix("c", SummedIsotopes)
-  write.csv(AbundanceMatrix$AbundanceMatrix, file.path(out, "AbundanceMatrix.csv"), quote = F, row.names = F)
+  utils::write.csv(AbundanceMatrix$AbundanceMatrix, file.path(out, "AbundanceMatrix.csv"), quote = F, row.names = F)
   
   # 6. Calculate Proportions
   Proportions <- calculate_proportions(AbundanceMatrix, modifications, IncludePlot = TRUE)
-  write.csv(Proportions[[1]], file.path(out, "Proportions.csv"), quote = F, row.names = F)
+  utils::write.csv(Proportions[[1]], file.path(out, "Proportions.csv"), quote = F, row.names = F)
   ggplot2::ggsave(file.path(out, "Proportions.png"), Proportions[[2]])
   
   # Clear out scan metadata 
