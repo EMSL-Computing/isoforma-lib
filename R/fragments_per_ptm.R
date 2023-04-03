@@ -11,10 +11,13 @@
 #' @param CorrelationScore A minimum Correlation Score to filter peaks with at 
 #'     least 2 isotopes. Default is 0.7. Optional.
 #' @param PPMThreshold A minimum PPM Threshold for matching calculated and exprimental
-#'     peaks. Default is 10. Optional
+#'     peaks. Default is 10. Optional.
+#' @param IsotopeAlgorithm "isopat" uses the isopat package to calculate isotopes, 
+#'     while "Rdisop" uses the Rdisop package. Though more accurate, Rdisop has been 
+#'     known to crash on Windows computers when called iteratively more than 1000 times. 
+#'     Default is Rdisop, though isopat is an alternative.
 #' @param Messages A TRUE/FALSE to indicate whether status messages should be printed.
 #'     Default is FALSE.
-#' @param ... Additional parameters to pass to pspecter's get_matched_peaks function.
 #' 
 #' @importFrom foreach %dopar% foreach
 #'     
@@ -24,9 +27,9 @@ fragments_per_ptm <- function(Sequences,
                               PrecursorCharge,
                               ActivationMethod,
                               CorrelationScore = 0.7,
-                              PPMThreshold = 10, 
-                              Messages = FALSE,
-                              ...) {
+                              PPMThreshold = 10,
+                              IsotopeAlgorithm = "Rdisop",
+                              Messages = FALSE) {
   
   ##################
   ## CHECK INPUTS ##
@@ -113,6 +116,7 @@ fragments_per_ptm <- function(Sequences,
         IonGroups = theIons,
         MinimumAbundance = 0.01,
         CorrelationScore = CorrelationScore,
+        IsotopeAlgorithm = IsotopeAlgorithm,
         AlternativeSequence = seq,
         AlternativeSpectrum = thePeaks, 
         AlternativeCharge = PrecursorCharge
