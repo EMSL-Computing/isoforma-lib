@@ -1,0 +1,216 @@
+---
+title: "Isoforma  Vignette"
+author: "Logan Lewis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# What is Isoforma?
+
+Isoforma is a package for quantifying positional isomers in MS2 spectra data. 
+Currently, analysis of this type of data requires the use of several, separate 
+tools, which is inconvenient and time-consuming for researchers. This goal of this
+software is offer all the functionality needed for this analysis and provide it in
+a streamlined package. The data is given to the user as a table of relative 
+percentages as well as an abundance matrix.
+
+Much of the backend functionality is drawn from the pspecterlib package, including
+generating metadata objects. More information about the backend package
+can be found [here](https://github.com/EMSL-Computing/pspecterlib).
+
+# Wrapper Function - isoforma_pipeline()
+
+For user convenience, we offer a wrapper function, 'Isoforma_pipeline()' which
+contains the necessary functions to complete the Isoforma workflow. The function
+requires the unmodified peptide sequence, modification (see create_modifications_object 
+for details of formatting), retention time start and end, and a path to a .mzML file.
+
+#TWO SECTIONS
+
+Below is an example modified ubiquitin data.
+
+```{r}
+#What do I do about this? I don't have data in this format
+
+tmpdir <- tempdir()
+
+isoforma_pipeline(unmodified_sequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
+                  modifications = "Aviett number**,V(17,26,70)[1]",
+                  rt_start, 
+                  rt_end,
+                  mzML_path,
+                  output_path = tmpdir,
+                  mass_window = 10,
+                  mz_round = 3,
+                  correlation_score = 0.7)
+```
+
+# Accessory Functions
+
+## create_modifications_object()
+
+### WELL REPLACE WITH PSPECTER FUNCTION
+
+Isoforma requires peptide strings in a specific format. This function will output
+a string in the correct format needed for the package. The user must provide a 
+modification name that is in the PTM database, the possible positions of the modification
+and the number of modification.
+**Clarify symbols**
+
+```{r}
+# Single modification of a single PTM examples 
+create_modifications_object("TRICITIES", "Methyl,I(3,5,7)[1]")
+
+
+# Multiple modifications of a single PTM example
+create_modifications_object("TRICITIES", "Methyl,I(3,5,7)[2]") 
+
+# Multiple modifications with a fixed position
+create_modifications_object("TRICITIES", "Methyl,I(3^,5,7)[2]") 
+
+# Multiple modifications with two fixed positions 
+create_modifications_object("TRICITIES", "Methyl,I(3^,5,7^)[2]")
+
+# Multiple modifications of a single PTM with any "X" residue
+create_modifications_object("TRICITIES", "Methyl,X(1,2,3,4,5,6,7,8,9)[2]")
+
+# Multiple modifications with multiple PTMs examples 
+create_modifications_object("TRICITIES", "Methyl,X(1)[1];Acetyl,X(2,4,9)[1]")
+create_modifications_object("TRICITIES", "Methyl,X(1,2,3,4,5,6,7,8,9)[1];Acetyl,X(2,4,9)[1]")
+create_modifications_object("TRICITIES", "Methyl,X(1^,2,3,4,5,6,7^,8,9)[3];Acetyl,X(2,4,9)[1]")
+```
+
+## write_mgf_simple()
+
+This function will write a .tsv output of a given spectra. This can be useful to
+users who wish to see their data in this format has they are running the pipeline.
+
+```{r}
+write_mgf_simple(round(SumSpectra$`M/Z`, 4), round(SumSpectra$Intensity, 4), file.path(out, "SumSpectra.mgf"),
+                   title = strsplit(out, "/", fixed = T) %>% unlist() %>% tail(1),
+                   pepmass = ExactMass, charge = paste0(max(ScanNumbers$`Precursor Charge`), "+"), 
+                   rt = mean(ScanNumbers$`Retention Time`), scans = paste0(ScanNumbers$`Scan Number`, collapse = " & "))
+```
+
+## ptm_heatmap()
+
+This function creates a heatmap based on the amount of each post-transcriptional 
+modification in the data. This offers a useful visualizatoin of the data to users.
+
+```{r}
+ptm_heatmap(FragmentsPerPTM)
+```
+
+## annotated_spectrum_ptms_plot
+
+This returns a [trelliscope](https://github.com/hafen/trelliscopejs) display of spectra data. 
+Trelliscope offers a great interactive UI that gives a plethora of options for exploring and
+visualizing their data.
+
+```{r}
+annotated_spectrum_ptms_plot(SumSpectra, FragmentsPerPTM)
+```
+
+# Pipeline Functions
+
+## pull_scan_numbers()
+
+#WILL BE SKIPPED IF YOU PROVIDE A SPECTRA
+
+This function generates scan numbers based on a Precursor Mass, mass tolerance, and 
+isolation window filtering. This can be as a vector or as a dataframe if AsDataframe
+is set to TRUE.
+
+```{r}
+#*ASK DAVID FOR THIS DATA!
+
+# Generate the ScanMetadata object 
+ScanMetadata <- pspecterlib::get_scan_metadata(
+   MSPath = "/Users/degn400/Desktop/IsoForma_Test/Sorghum-Histone0622162L11.mzML"
+)
+ 
+ # Run function
+pull_scan_numbers(Sequence = "M.SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRGVLKIFLENVIRDAVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG",
+                   Modification = "Acetyl,X(1*,5,8,12,16,20)[2]",
+                   ScanMetdata = ScanMetadata,
+                   PrecursorMass = 11355.38,
+                   RTStart = 30,
+                   RTEnd = 60)
+```
+
+## sum_spectra()
+
+#WILL BE SKIPPED IF YOU PROVIDE A SPECTRA
+#REPLACE SUMMING FUNCTION WITH ISOMATCH? IF RESULTS DONT CHANGE
+
+Users can sum together spectra based on scan number using this function. Summing
+spectra help gives stronger signal by combining the results of several replicates.
+
+```{r}
+#*ASK DAVID FOR THIS DATA!
+
+# Generate the ScanMetadata object 
+ScanMetadata <- pspecterlib::get_scan_metadata(
+    MSPath = "/Users/degn400/Desktop/IsoForma_Test/Sorghum-Histone0622162L11.mzML"
+)
+
+# Run function
+sum_spectra(ScanMetdata = ScanMetadata,
+            ScanNumbers = c(1236, 1237, 1240, 1316, 1497, 1520, 1534))
+```
+
+
+
+## fragments_per_ptm()
+
+This will calculate the number of fragments of each post-transcriptional modification
+in the data, and matches the peaks using the matching alogrithm from the pspecter 
+package.The function returns a matched_peaks_isoforma object.
+
+```{r}
+#FIX WITH DATA
+FragmentsPerPTM <- fragments_per_ptm(Sequences = c(unmodified_sequence, create_modifications_object(unmodified_sequence, modifications)),
+                                       SummedSpectra = SumSpectra,
+                                       PrecursorCharge = PrecursorCharge,
+                                       ActivationMethod = ActivationMethod,
+                                       CorrelationScore = 0.7,
+                                       IsotopeAlgorithm = IsotopeAlgorithm,
+                                       PPMThreshold = 5,
+                                       Messages = TRUE)
+```
+
+## sum_isotopes()
+
+This step in the pipeline sums all isotopes and charge states of a fragment (i.e. 
+a “c” ion that is an M+1 isotope with charge 5 will be summed to an M isotope with 
+charge 6, etc). Returns a summed_isotopes_isoforma object.
+
+```{r}
+SummedIsotopes <- sum_isotopes(FragmentsPerPTM)
+```
+
+## abundance_matrix()
+
+This function creates an abundance matrix where rows are ion type for every effected 
+residue, and columns are the summed PTM amounts based on the inputed summed_isotopes_isoforma 
+object. The output is assigned the class "abundance_matrix_isoforma", but takes 
+the form of a dataframe and can be saved to a .csv using utils::write.csv(). If one ion doen't produce expected results, try another one based on activation method.
+
+```{r}
+AbundanceMatrix <- abundance_matrix("c", SummedIsotopes)
+```
+
+## calculate_proportions()
+
+Here the proportions of each of the fragments are calculated using the previously
+generated abundance matrix. It is calculated as as the abundance for a PTM over 
+the max abundance in that row. This function returns a dataframe as well as an optional
+graphical output, providing a visual representation of the fragment proportions.
+
+```{r}
+Proportions <- calculate_proportions(AbundanceMatrix, modifications, IncludePlot = TRUE)
+```
+

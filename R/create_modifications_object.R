@@ -1,5 +1,5 @@
 Glossary <- data.table::fread(
-  system.file("extdata", "Unimod_v20220602.csv", package = "ProteoMatch")
+  system.file("extdata", "Unimod_v20220602.csv", package = "pspecterlib")
 )
 
 #' A function to generate a list of properly formatted proforma strings 
