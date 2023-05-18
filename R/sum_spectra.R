@@ -1,50 +1,82 @@
-#' Function to sum spectrum based on scan number
+#' Function to sum spectrum based on scan number selections, or a list of pspecterlib::peak_data objects
 #' 
-#' @param ScanMetadata Object of the scan_metadata class from get_scan_metadata 
-#'     in pspecterlib. Required.
-#' @param ScanNumbers A vector of scan numbers contained in the ScanMetadata 
-#'     object. Can be calculated by pull_scan_numbers. Required. 
-#' @param MZRound Decimal place the MZ values should be rounded to for binning. 
-#'     Default is 3.
-#' @param Percentage The percentage of peaks to take. Default is 25%. 
+#' @details Sum spectra based on peak selection from the pspecterlib ScanMetadata object, 
+#'    or provide a list of pspecterlib::peak_data objects to sum. 
+#' 
+#' @param ScanMetadata (scan_metadata object) Object of the scan_metadata class from get_scan_metadata 
+#'     in pspecterlib. Required if PeakDataList is NULL.
+#' @param ScanNumbers (numeric) Scan numbers contained in the ScanMetadata 
+#'     object. Can be calculated by pull_scan_numbers. Required if PeakDataList is NULL.
+#' @param PeakDataList (peak_data object) A list of peak_data scan objects. Required if ScanMetadata and
+#'     ScanNumbers are NULL.  
+#' @param PPMRound (numeric) Number to round to in PPM. Default is 5.
 #'  
 #' @examples
 #' \dontrun{
 #' 
-#' # Generate the ScanMetadata object 
-#' ScanMetadata <- pspecterlib::get_scan_metadata(
-#'     MSPath = "/Users/degn400/Desktop/IsoForma_Test/Sorghum-Histone0622162L11.mzML"
-#' )
+#' #################################################
+#' ## EXAMPLE 1: PULL FROM A SCAN METADATA OBJECT ##
+#' #################################################
+#'             
+#'             
+#' #######################################
+#' ## EXAMPLE 2: SUM PEAK DATA TOGETHER ##               
+#' #######################################
 #' 
-#' # Run function
-#' sum_spectra(ScanMetdata = ScanMetadata,
-#'             ScanNumbers = c(1236, 1237, 1240, 1316, 1497, 1520, 1534))
+#' 
+#' 
+#' 
 #' }
 #' @export
-sum_spectra <- function(ScanMetadata, 
-                        ScanNumbers,
-                        MZRound = 3,
-                        Percentage = 25) {
+sum_spectra <- function(ScanMetadata = NULL, 
+                        ScanNumbers = NULL,
+                        PeakDataList = NULL,
+                        PPMRound = 5) {
   
   ##################
   ## CHECK INPUTS ##
   ##################
   
-  # Check that ScanMetadata is of the appropriate class
-  if ("scan_metadata" %in% class(ScanMetadata) == FALSE) {
-    stop("ScanMetadata must be a scan_metadata object from get_scan_metadata in the pspecterlib package.")
+  # Make sure all 3 parameters are not NULL
+  if (is.null(ScanMetadata) | is.null(ScanNumbers)) {
+    
+    if (is.null(PeakDataList)) {
+      stop("Either ScanMetadata and ScanNumbers should be provided, or a PeakDataList.")
+    }
+    
   }
   
-  # Check that ScanNumberVector is numeric
-  if (!is.numeric(ScanNumbers)) {
-    stop("ScanNumberVector must be numeric.")
-  } 
-  
-  ## Check that RelativeAbundancePercentage is numeric
-  if (!is.numeric(MZRound)) {
-    stop("RelativeAbundancePercentage must be numeric.")
+  # Check inputs
+  if (is.null(PeakDataList)) {
+    
+    # Both scan metadata and scan numbers should be provided 
+    if (is.null(ScanMetadata) | is.null(ScanNumbers)) {
+      stop("Both ScanMetadata and ScanNumbers should not be NULL.")
+    }
+    
+    # Check that ScanMetadata is of the appropriate class
+    if ("scan_metadata" %in% class(ScanMetadata) == FALSE) {
+      stop("ScanMetadata must be a scan_metadata object from get_scan_metadata in the pspecterlib package.")
+    }
+    
+    # Check that ScanNumberVector is numeric
+    if (!is.numeric(ScanNumbers)) {
+      stop("ScanNumbers must be numeric.")
+    }
+    
+  } else {
+    
+    # All PeakDataList objects should be peak_data
+    if (all(unlist(lapply(PeakDataList, function(x) {inherits(x, "peak_data")}))) == FALSE) {
+      stop("All objects in the PeakDataList must be Peak")
+    }
+    
   }
-  RelativeAbundancePercentage <- abs(floor(MZRound))
+  
+  # PPM Round should not be a value that will slow down the functions too much
+  if (!is.numeric(PPMRound) | PPMRound < 0.1) {
+    stop("PPMRound must be a numeric of length 1 greater than 0.1")
+  }
   
   ##########################
   ## PULL AND SUM SPECTRA ##
@@ -61,24 +93,41 @@ sum_spectra <- function(ScanMetadata,
     stop("No peaks detected. Try different scan numbers within the appropriate range.")
   }
   
-  # Bin by the thousands place, rounded, and sum intensities
-  Spectra$`M/Z` <- round(Spectra$`M/Z`, MZRound)
-  Spectra <- Spectra %>%
-    dplyr::group_by(`M/Z`) %>%
-    dplyr::summarize(sum(Intensity)) 
+  # Function to sum data by the ppm value
+  ppm_round <- function(vals) {
+    
+    lapply(vals, function(x) {
+      
+      if (x >= 1e7) {stop(paste0("Unexpectedly large number passed to rounding function: ", x))}
+      
+      # Get the number of decimal points
+      deci_num <- (x %>% as.integer() %>% nchar()) - 1
+      
+      # Now use plyr's round any
+      adj <- plyr::round_any(x, PPMRound / 10^6 * 10^deci_num)
+      
+      return(adj)
+      
+    }) %>% unlist()
+    
+  }
   
-  # Rename columns
-  colnames(Spectra) <- c("M/Z", "Intensity")
+  # Iterate through MS1_Scans, pull peak data, and round MZ values
+  Spectra_Rounded <- do.call(rbind, lapply(Spectra, function(peakData) {
+    class(peakData) <- c("data.table", "data.frame")
+    peakData <- peakData %>%
+      dplyr::mutate(
+        `M/Z` = ppm_round(`M/Z`)
+      ) %>%
+      dplyr::select(`M/Z`, Abundance)
+    return(peakData)
+  }))
   
-  # Determine percentage
-  Percent <- abs(Percentage) / 100
-  if (Percent > 1) {Percent <- 1}
-  if (Percent == 0) {Percent <- 1}
+  class(Spectra_Rounded) <- c("peak_data", "data.table", "data.frame")
   
-  # Take top percentage of peaks
-  Spectra <- Spectra[order(-Spectra$Intensity)[1:ceiling(nrow(Spectra) * Percent)],] %>%
-    dplyr::arrange(`M/Z`)
+  # Set an isoforma peak summing attribute 
+  attr(Spectra_Rounded, "isoforma")$PeakSummed <- TRUE
   
-  return(Spectra)
+  return(Spectra_Rounded)
   
 }
