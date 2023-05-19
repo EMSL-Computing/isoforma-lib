@@ -1,26 +1,68 @@
 #' Run the main isoforma function
 #' 
-#' #' @details Sum spectra based on peak selection from the pspecterlib ScanMetadata object, 
+#' @description Sum spectra based on peak selection from the pspecterlib ScanMetadata object, 
 #'    or provide a list of pspecterlib::peak_data objects to sum. 
 #' 
-#' 
-#' @param unmodified_sequence The unmodified peptide sequence. Required.
-#' @param modifications List of modifications to test. See ?create_modifications_object for example. Required.
-#' @param rt_start The retention time at which to start summing applicable MS2 spectra. Required.
-#' @param rt_end The retetntion time at which to stop summing applicable MS2 spectra. Required.
-#' @param mzML_path The path to the mzML file. Required.
-#' @param output_path The path to output the isoforma results folder. Default is same as mzML_path.
-#' @param IsotopeAlgorithm "isopat" uses the isopat package to calculate isotopes,
+#' @param UnmodifiedSequence (character) The unmodified peptide sequence. Required.
+#' @param Modifications (character) List of modifications to test. See ?pspecterlib::multiple_modifications for example. Required.
+#' @param RTStart (numeric) The retention time at which to start summing applicable MS2 spectra. Required if 
+#'    PeakDataList is NULL. See examples. 
+#' @param RTEnd (numeric) The retention time at which to stop summing applicable MS2 spectra. Required if PeakDataList 
+#'    is NULL. See examples. 
+#' @param MSPath (character) The path to the mzML or raw file. Required if PeakDataList is NULL. See examples.
+#' @param PeakDataList (list of peak data objects) A list of peak_data scan objects. 
+#'    Required if no MSPath is supplied. See examples for more details.
+#' @param OutputPath (character) The path to output the isoforma results folder. 
+#' @param IsotopeAlgorithm (character) "isopat" uses the isopat package to calculate isotopes,
 #'     while "Rdisop" uses the Rdisop package. Though more accurate, Rdisop has been
 #'     known to crash on Windows computers when called iteratively more than 1000 times.
 #'     Default is Rdisop, though isopat is an alternative.
-#' @param IonGroup Must be an ion group to subset data down to (a-c or x-z). Default is "c".
-#' @param mass_window m/z values to sum isotopes over. Written Daltons and is applied as -/+ 10 Da. Default is 10.
-#' @param mz_round Decimal place that binned m/z values should be rounded to in summing spectra. Default is 3.
-#' @param correlation_score Range is 0-1 for the Isotope Correlation Score. Applies only when there's 2+ isotopes.
+#' @param IonGroup (character) Must be an ion group to subset data down to (a-c or x-z). Default is "c".
+#' @param MassWindow (numeric) m/z values to sum isotopes over. Written Daltons and is applied as -/+ 10 Da. Default is 10.
+#' @param PPMRound (numeric)
+#' 
+#' @returns Many objects
+#' 
+#' @examples
+#' \dontrun{
+#' ####################################
+#' ## EXAMPLE 1: SKIP PEAK SELECTION ##
+#' ####################################
+#' 
+#' # Load 3 peaks to sum 
+#' PeakDataList <- list(
+#'  readRDS(system.file("extdata", "PeakData_1to1to1_1.RDS", package = "isoforma")),
+#'  readRDS(system.file("extdata", "PeakData_1to1to1_2.RDS", package = "isoforma")),
+#'  readRDS(system.file("extdata", "PeakData_1to1to1_3.RDS", package = "isoforma"))
+#' )
+#' 
+#' # Run main isoforma function
+#' isoforma_pipeline(
+#'    UnmodifiedSequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
+#'    Modification =  "6.018427,V(17,26,70)[1]",
+#'    PeakDataList = PeakDataList,
+#'    OutputPath = "~/Downloads/Isoforma_Brunner_Example", 
+#'    IsotopeAlgorithm = "Rdisop", 
+#'    PrecursorCharge = 11, 
+#'    ActivationMethod = "ETD",
+#'    IonGroup = "c",
+#' 
+#' 
+#' 
+#' 
+#' )
+#' 
+#' 
+#' 
+#' #########################################
+#' ## EXAMPLE 2: AUTOMATED PEAK SELECTION ##
+#' #########################################
+#' 
+#' }
+#' 
 #'
 #' @export
-isoforma_pipeline <- function(unmodified_sequence,
+isoforma_pipeline <- function(unmodifiedsequence,
                               modifications,
                               rt_start,
                               rt_end,
