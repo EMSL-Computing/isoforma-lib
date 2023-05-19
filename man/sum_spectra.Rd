@@ -23,6 +23,9 @@ object. Can be calculated by pull_scan_numbers. Required if PeakDataList is NULL
 ScanNumbers are NULL.}
 
 \item{PPMRound}{(numeric) Number to round to in PPM. Default is 5.}
+
+\item{MinimumAbundance}{(numeric) The minimum abundance value to keep. Acceptable values
+range from 0 to 100. Default is 0.01.}
 }
 \description{
 Function to sum spectrum based on scan number selections, or a list of pspecterlib::peak_data objects

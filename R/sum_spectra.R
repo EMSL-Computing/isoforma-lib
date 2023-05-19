@@ -9,6 +9,8 @@
 #'     object. Can be calculated by pull_scan_numbers. Required if PeakDataList is NULL.
 #' @param PeakDataList (peak_data object) A list of peak_data scan objects. Required if ScanMetadata and
 #'     ScanNumbers are NULL.  
+#' @param MinimumAbundance (numeric) The minimum abundance value to keep. Acceptable values
+#'    range from 0 to 100. Default is 0.01.
 #' @param PPMRound (numeric) Number to round to in PPM. Default is 5.
 #'  
 #' @examples
@@ -83,6 +85,11 @@ sum_spectra <- function(ScanMetadata = NULL,
   # PPM Round should not be a value that will slow down the functions too much
   if (!is.numeric(PPMRound) | PPMRound < 0.1) {
     stop("PPMRound must be a numeric of length 1 greater than 0.1")
+  }
+  
+  # Check that the minimum abundance filter is reasonable
+  if (!is.numeric(MinimumAbundance) || (MinimumAbundance < 0 | MinimumAbundance > 100)) {
+    stop("MinimumAbundance should be a single numeric between 0 and 100.")
   }
   
   ##########################
