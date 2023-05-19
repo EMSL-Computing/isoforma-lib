@@ -4,4 +4,4 @@ R package for the relative quantification of proteoform positional isomers (QPI)
 # How to install 
 `devtools::install_github("EMSL-Computing/isoforma-lib")`
 
-To get started, read our vignette
+To get started, read our [vignette](https://emsl-computing.github.io/isoforma-lib/)
