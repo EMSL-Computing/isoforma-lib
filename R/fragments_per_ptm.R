@@ -25,7 +25,7 @@
 #' 
 #' @importFrom foreach %dopar% foreach
 #' 
-#' @returns (matched_peaks_isoforma) A list of pspecterlib matched_peaks objects 
+#' @returns (matched peaks) A list of pspecterlib matched_peaks objects 
 #' 
 #' @examples 
 #' \dontrun{
@@ -45,7 +45,7 @@
 #'    Sequences = MultipleMods, 
 #'    SummedSpectra = SummedPeaks, 
 #'    PrecursorCharge = 11, 
-#'    ActivationMethod = "ETC",
+#'    ActivationMethod = "ETD",
 #'    CorrelationScore = 0, # Here, we don't care about correlation score filtering 
 #'    Messages = TRUE
 #' )

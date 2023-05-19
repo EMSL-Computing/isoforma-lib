@@ -4,19 +4,18 @@
 #'    row is a fragment, and each column is a proteoform summed abundance.
 #' 
 #' @param IonGroup (character) Must be an ion group to subset data down to (a-c or x-z). Required. 
-#' @param SummedIsotopes (summed_isotopes_isoforma) The dataframe of summed_isotopes from sum_isotopes. Required.
+#' @param SummedIsotopes (summed isotopes) The dataframe of summed_isotopes from sum_isotopes. Required.
 #' 
-#' @return (abundance matrix isoforma) A data.frame where each row is a fragment and 
+#' @return (abundance matrix) A data.frame where each row is a fragment and 
 #'    each column is a summed abundance. 
+#'    
 #' @examples 
 #' \dontrun{
-#'
 #' # Load summed isotopes 
 #' SumIso <- readRDS(system.file("extdata", "SummedIsotopes_1to1to1.RDS", package = "isoforma"))
 #'
 #' # Generate the matrix
 #' abundance_matrix(SummedIsotopes = SumIso, IonGroup = "c")
-#'
 #' }
 #' @export
 abundance_matrix <- function(SummedIsotopes,

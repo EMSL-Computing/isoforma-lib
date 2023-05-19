@@ -1,12 +1,31 @@
 #' Generate the proportions of fragments from an abundance matrix
 #' 
-#' @param AbundanceMatrix An abundance matrix from abundance_matrix(). Required. 
-#' @param IncludePlot TRUE/FALSE to indicate whether a plot should also be returned. Default is TRUE.
+#' @description Returns a list where the first object is the calculated proportions,
+#'     and the second is barplot with the top n calculated proportions and their 
+#'     respective error bars. 
+#' 
+#' @param AbundanceMatrix (abundance matrix isoforma) An abundance matrix from abundance_matrix(). Required. 
+#' @param IncludePlot (logical) TRUE/FALSE to indicate whether a plot should also be returned. Default is TRUE.
+#' @param Top (integer) The top N proportions to return, ranked from higest to lowest. Default is 8.
+#' 
+#' @return (list) The first item is a data.table and the second is a plot
+#' 
+#' @examples
+#' \dontrun{
+#' # Load summed isotopes 
+#' SumIso <- readRDS(system.file("extdata", "SummedIsotopes_1to1to1.RDS", package = "isoforma"))
+#'
+#' # Generate the matrix
+#' AbundanceMat <- abundance_matrix(SummedIsotopes = SumIso, IonGroup = "c")
+#' 
+#' # Calculate Proportions
+#' calculate_proportions(AbundanceMat)
+#' }
 #' 
 #' @export
 calculate_proportions <- function(AbundanceMatrix, 
                                   IncludePlot = TRUE, 
-                                  top = 8) {
+                                  Top = 8) {
   
   ##################
   ## CHECK INPUTS ##
@@ -21,6 +40,12 @@ calculate_proportions <- function(AbundanceMatrix,
   if (!is.logical(IncludePlot)) {
     stop("IncludePlot must be TRUE or FALSE.")
   }
+  
+  # Top should be a number
+  if (!is.numeric(Top)) {
+    stop("Top should be a single numeric")
+  }
+  Top <- round(abs(Top))
   
   ###########################
   ## CALCULATE PROPORTIONS ##
@@ -143,6 +168,7 @@ calculate_proportions <- function(AbundanceMatrix,
   Proportions$Name <- factor(Proportions$Name, levels = ComparisonRanges$Name)
   Proportions <- Proportions %>% dplyr::arrange(Name)
   Proportions$Error <- Medians$Error
+  Proportions <- Proportions %>% dplyr::rename(Modification = Name)
 
   # Make percentage plot if necessary
   if (IncludePlot) {
@@ -150,20 +176,20 @@ calculate_proportions <- function(AbundanceMatrix,
     # Modify data frame for better plotting
     PercentPlot <- Proportions
     PercentPlot$x <- "x"
-    PercentPlot$Name <- factor(PercentPlot$Name, levels = PercentPlot$Name)
+    PercentPlot$Modification <- factor(PercentPlot$Modification, levels = PercentPlot$Modification)
     
-    if (nrow(PercentPlot) > top) {
+    if (nrow(PercentPlot) > Top) {
       PercentPlot <- PercentPlot %>%
         dplyr::group_by(Proportion) %>%
         dplyr::arrange(-Proportion) 
-      PercentPlot <- PercentPlot[1:top,]
-      PercentPlot <- rbind(PercentPlot, list("Name" = "Other", "Percentages" = 1 - sum(PercentPlot$Proportion), 
+      PercentPlot <- PercentPlot[1:Top,]
+      PercentPlot <- rbind(PercentPlot, list("Modification" = "Other", "Percentages" = 1 - sum(PercentPlot$Proportion), 
          "x" = "x"))  
     }
     
     PercentPlot$Error <- as.numeric(PercentPlot$Error)
     
-    Plot <- ggplot2::ggplot(PercentPlot, ggplot2::aes(x = x, y = Proportion, fill = Name)) +
+    Plot <- ggplot2::ggplot(PercentPlot, ggplot2::aes(x = x, y = Proportion, fill = Modification)) +
       ggplot2::geom_bar(stat = "identity", position = "dodge") + ggplot2::theme_bw() +
       ggplot2::geom_errorbar(ggplot2::aes(ymin = Proportion - Error, ymax = Proportion + Error), width = 0.2, position = ggplot2::position_dodge(.9)) +
       ggplot2::theme(axis.title.x = ggplot2::element_blank(), axis.text.x = ggplot2::element_blank()) 

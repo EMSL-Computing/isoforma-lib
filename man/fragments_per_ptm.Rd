@@ -43,7 +43,7 @@ Default is Rdisop, though isopat is an alternative.}
 Default is FALSE.}
 }
 \value{
-(matched_peaks_isoforma) A list of pspecterlib matched_peaks objects
+(matched peaks) A list of pspecterlib matched_peaks objects
 }
 \description{
 Calculate the fragments per PTM from the modifications_isoforma object
@@ -71,7 +71,7 @@ fragments_per_ptm(
    Sequences = MultipleMods, 
    SummedSpectra = SummedPeaks, 
    PrecursorCharge = 11, 
-   ActivationMethod = "ETC",
+   ActivationMethod = "ETD",
    CorrelationScore = 0, # Here, we don't care about correlation score filtering 
    Messages = TRUE
 )
