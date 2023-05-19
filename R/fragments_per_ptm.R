@@ -25,6 +25,8 @@
 #' 
 #' @importFrom foreach %dopar% foreach
 #' 
+#' @returns (matched_peaks_isoforma) A list of pspecterlib matched_peaks objects 
+#' 
 #' @examples 
 #' \dontrun{
 #' 

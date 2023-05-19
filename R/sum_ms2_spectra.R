@@ -12,6 +12,8 @@
 #' @param MinimumAbundance (numeric) The minimum abundance value to keep. Acceptable values
 #'    range from 0 to 100. Default is 0.01.
 #' @param PPMRound (numeric) Number to round to in PPM. Default is 5.
+#' 
+#' @returns (peak_data) A peak_data object with summed MS2 spectra
 #'  
 #' @examples
 #' \dontrun{
@@ -32,15 +34,15 @@
 #'   readRDS(system.file("extdata", "PeakData_1to1to1_3.RDS", package = "isoforma"))
 #' )
 #' 
-#' sum_spectra(PeakDataList = PeakDataList)
+#' sum_ms2_spectra(PeakDataList = PeakDataList)
 #' 
 #' }
 #' @export
-sum_spectra <- function(ScanMetadata = NULL, 
-                        ScanNumbers = NULL,
-                        PeakDataList = NULL,
-                        PPMRound = 5,
-                        MinimumAbundance = 0.01) {
+sum_ms2_spectra <- function(ScanMetadata = NULL, 
+                            ScanNumbers = NULL,
+                            PeakDataList = NULL,
+                            PPMRound = 5,
+                            MinimumAbundance = 0.01) {
   
   ##################
   ## CHECK INPUTS ##

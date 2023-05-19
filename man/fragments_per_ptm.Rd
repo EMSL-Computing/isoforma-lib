@@ -42,6 +42,9 @@ Default is Rdisop, though isopat is an alternative.}
 \item{Messages}{(logic) A TRUE/FALSE to indicate whether status messages should be printed.
 Default is FALSE.}
 }
+\value{
+(matched_peaks_isoforma) A list of pspecterlib matched_peaks objects
+}
 \description{
 Calculate the fragments per PTM from the modifications_isoforma object
 }

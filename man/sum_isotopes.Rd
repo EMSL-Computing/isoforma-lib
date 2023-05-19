@@ -4,15 +4,16 @@
 \alias{sum_isotopes}
 \title{Sum isotopes within a matched_peaks object}
 \usage{
-sum_isotopes(IsoformaFragments, Charges = 1:100)
+sum_isotopes(IsoformaFragments)
 }
 \arguments{
 \item{IsoformaFragments}{A matched peaks isoforma object from fragments_per_ptm. Required.}
-
-\item{Charges}{The charge values to sum. Default is 1-100.}
 }
 \description{
 Sum isotopes within a matched_peaks object
+}
+\details{
+Intensities are divided by their respective charge states and summed together.
 }
 \examples{
 \dontrun{

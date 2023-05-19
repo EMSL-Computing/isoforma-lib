@@ -1,7 +1,8 @@
 #' Sum isotopes within a matched_peaks object
 #' 
+#' @details Intensities are divided by their respective charge states and summed together.
+#' 
 #' @param IsoformaFragments A matched peaks isoforma object from fragments_per_ptm. Required. 
-#' @param Charges The charge values to sum. Default is 1-100. 
 #' 
 #' @examples
 #' \dontrun{
@@ -9,7 +10,7 @@
 #' 
 #' }
 #' @export
-sum_isotopes <- function(IsoformaFragments, Charges = 1:100) {
+sum_isotopes <- function(IsoformaFragments) {
   
   ##################
   ## CHECK INPUTS ##
@@ -42,35 +43,7 @@ sum_isotopes <- function(IsoformaFragments, Charges = 1:100) {
       Fragments <- Fragments[is.na(Fragments$Ion) == FALSE,]
     }
     
-    # Break up into ions,  and sum intensities 
-    #SummedIntensities <- Fragments %>%
-    #  subset(Z %in% Charges) %>% 
-    #  dplyr::select(c(Ion, Z, `Intensity Experimental`, `PPM Error`, Isotope)) %>%
-    #  dplyr::mutate(Label = paste0(Ion, "_", Z, "_", Isotope)) %>%
-    #  dplyr::group_by(Label) %>%
-    #  dplyr::slice(which.min(abs(`PPM Error`))) %>% 
-    #  dplyr::select(-c(`PPM Error`, Isotope)) %>%
-    #  dplyr::ungroup() %>%
-    #  dplyr::mutate(Label = paste0(Ion, "_", Z)) %>%
-    #  dplyr::group_by(Label) %>%
-    #  tidyr::nest() %>%
-    #  dplyr::mutate(
-    #    `Summed Intensity` = purrr::map(data, function(x) {sum(x$`Intensity Experimental`)}) %>% unlist(),
-    #    `Peak Count` = purrr::map(data, function(x) {length(x$`Intensity Experimental`)}) %>% unlist()
-    #  ) %>%
-    #  dplyr::mutate(Ion = lapply(Label, function(x) {strsplit(x, "_") %>% unlist() %>% head(1)}) %>% unlist()) %>%
-    #  dplyr::ungroup() %>%
-    #  dplyr::select(-c(data, Label)) %>%
-    #  dplyr::group_by(Ion) %>%
-    #  tidyr::nest() %>%
-    #  dplyr::mutate(
-    #    `Summed Intensity` = purrr::map(data, function(x) {x[which.max(x$`Summed Intensity`), "Summed Intensity"] %>% unlist()}) %>% unlist(),
-    #    `Peak Count` = purrr::map(data, function(x) {x[which.max(x$`Summed Intensity`), "Peak Count"] %>% unlist()}) %>% unlist()
-    #  ) %>%
-    #  dplyr::select(-data) %>%
-    #  dplyr::mutate(
-    #    Proteoform = names(IsoformaFragments)[el]
-    #  )
+    browser()
     
     SummedIntensities <- Fragments %>%
       dplyr::group_by(Ion) %>%
