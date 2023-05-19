@@ -11,8 +11,8 @@ fragments_per_ptm(
   ActivationMethod,
   CorrelationScore = 0.7,
   PPMThreshold = 10,
-  Messages = FALSE,
-  ...
+  IsotopeAlgorithm = "Rdisop",
+  Messages = FALSE
 )
 }
 \arguments{
@@ -32,12 +32,15 @@ returns all 6 ions. Required.}
 least 2 isotopes. Default is 0.7. Optional.}
 
 \item{PPMThreshold}{A minimum PPM Threshold for matching calculated and exprimental
-peaks. Default is 10. Optional}
+peaks. Default is 10. Optional.}
+
+\item{IsotopeAlgorithm}{"isopat" uses the isopat package to calculate isotopes,
+while "Rdisop" uses the Rdisop package. Though more accurate, Rdisop has been
+known to crash on Windows computers when called iteratively more than 1000 times.
+Default is Rdisop, though isopat is an alternative.}
 
 \item{Messages}{A TRUE/FALSE to indicate whether status messages should be printed.
 Default is FALSE.}
-
-\item{...}{Additional parameters to pass to pspecter's get_matched_peaks function.}
 }
 \description{
 Calculate the fragments per PTM from the modifications_isoforma object

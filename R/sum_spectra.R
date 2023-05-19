@@ -23,15 +23,22 @@
 #' ## EXAMPLE 2: SUM PEAK DATA TOGETHER ##               
 #' #######################################
 #' 
+#' # Load 3 peaks to sum 
+#' PeakDataList <- list(
+#'   readRDS(system.file("extdata", "PeakData_1to1to1_1.RDS", package = "isoforma")),
+#'   readRDS(system.file("extdata", "PeakData_1to1to1_2.RDS", package = "isoforma")),
+#'   readRDS(system.file("extdata", "PeakData_1to1to1_3.RDS", package = "isoforma"))
+#' )
 #' 
-#' 
+#' sum_spectra(PeakDataList = PeakDataList)
 #' 
 #' }
 #' @export
 sum_spectra <- function(ScanMetadata = NULL, 
                         ScanNumbers = NULL,
                         PeakDataList = NULL,
-                        PPMRound = 5) {
+                        PPMRound = 5,
+                        MinimumAbundance = 0.01) {
   
   ##################
   ## CHECK INPUTS ##
@@ -82,15 +89,29 @@ sum_spectra <- function(ScanMetadata = NULL,
   ## PULL AND SUM SPECTRA ##
   ##########################
   
-  # Pull all the spectra - skipping those not in the range
-  Spectra <- do.call(rbind, lapply(ScanNumbers, function(scan_number) {
-    tryCatch({pspecterlib::get_peak_data(ScanMetadata, scan_number) }, 
-             error = function(e) {message(e); return(NULL)})
-  })) 
-  
-  # Stop if no spectra
-  if (nrow(Spectra) == 0) {
-    stop("No peaks detected. Try different scan numbers within the appropriate range.")
+  if (is.null(PeakDataList)) {
+    
+    # Pull all the spectra - skipping those not in the range
+    Spectra <- do.call(dplyr::bind_rows, lapply(ScanNumbers, function(scan_number) {
+      tryCatch({pspecterlib::get_peak_data(ScanMetadata, scan_number) }, 
+               error = function(e) {message(e); return(NULL)})
+    })) 
+    
+    # Stop if no spectra
+    if (nrow(Spectra) == 0) {
+      stop("No peaks detected. Try different scan numbers within the appropriate range.")
+    }
+    
+  } else {
+    
+    # Fix peak data list classes
+    PeakDataList <- lapply(PeakDataList, function(peak_data) {
+      class(peak_data) <- c("data.table", "data.frame")
+      return(peak_data)
+    })
+    
+    Spectra <- do.call(dplyr::bind_rows, PeakDataList)
+    
   }
   
   # Function to sum data by the ppm value
@@ -113,21 +134,24 @@ sum_spectra <- function(ScanMetadata = NULL,
   }
   
   # Iterate through MS1_Scans, pull peak data, and round MZ values
-  Spectra_Rounded <- do.call(rbind, lapply(Spectra, function(peakData) {
-    class(peakData) <- c("data.table", "data.frame")
-    peakData <- peakData %>%
-      dplyr::mutate(
-        `M/Z` = ppm_round(`M/Z`)
-      ) %>%
-      dplyr::select(`M/Z`, Abundance)
-    return(peakData)
-  }))
+  Spectra_Rounded <- Spectra %>%
+    dplyr::mutate(`M/Z` = ppm_round(`M/Z`)) %>%
+    dplyr::group_by(`M/Z`) %>%
+    dplyr::summarise(
+      Intensity = sum(Intensity)
+    ) %>%
+    dplyr::mutate(ScaleAbundance = Intensity / max(Intensity) * 100) %>%
+    dplyr::filter(ScaleAbundance > MinimumAbundance)
   
-  class(Spectra_Rounded) <- c("peak_data", "data.table", "data.frame")
+  # Make Final Spectra
+  FinalSpectra <- pspecterlib::make_peak_data(
+    MZ = Spectra_Rounded$`M/Z`,
+    Intensity = Spectra_Rounded$Intensity
+  )
   
   # Set an isoforma peak summing attribute 
-  attr(Spectra_Rounded, "isoforma")$PeakSummed <- TRUE
+  attr(FinalSpectra, "isoforma")$PeakSummed <- TRUE
   
-  return(Spectra_Rounded)
+  return(FinalSpectra)
   
 }

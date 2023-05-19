@@ -12,5 +12,6 @@ abundance_matrix(IonGroup, SummedIsotopes, .Threshold = NULL)
 \item{SummedIsotopes}{The dataframe of summed_isotopes from sum_isotopes. Required.}
 }
 \description{
-Return an abundance matrix based on summed isotopes
+Returns a data.frame of class "abundance_matrix_isoforma" where each
+row is a fragment, and each column is a proteoform summed abundance.
 }

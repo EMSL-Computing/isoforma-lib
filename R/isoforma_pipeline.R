@@ -1,5 +1,9 @@
 #' Run the main isoforma function
-#'
+#' 
+#' #' @details Sum spectra based on peak selection from the pspecterlib ScanMetadata object, 
+#'    or provide a list of pspecterlib::peak_data objects to sum. 
+#' 
+#' 
 #' @param unmodified_sequence The unmodified peptide sequence. Required.
 #' @param modifications List of modifications to test. See ?create_modifications_object for example. Required.
 #' @param rt_start The retention time at which to start summing applicable MS2 spectra. Required.

@@ -11,6 +11,8 @@ isoforma_pipeline(
   rt_end,
   mzML_path,
   output_path,
+  IsotopeAlgorithm,
+  IonGroup = "c",
   mass_window = 10,
   mz_round = 3,
   correlation_score = 0.7
@@ -29,6 +31,13 @@ isoforma_pipeline(
 
 \item{output_path}{The path to output the isoforma results folder. Default is same as mzML_path.}
 
+\item{IsotopeAlgorithm}{"isopat" uses the isopat package to calculate isotopes,
+while "Rdisop" uses the Rdisop package. Though more accurate, Rdisop has been
+known to crash on Windows computers when called iteratively more than 1000 times.
+Default is Rdisop, though isopat is an alternative.}
+
+\item{IonGroup}{Must be an ion group to subset data down to (a-c or x-z). Default is "c".}
+
 \item{mass_window}{m/z values to sum isotopes over. Written Daltons and is applied as -/+ 10 Da. Default is 10.}
 
 \item{mz_round}{Decimal place that binned m/z values should be rounded to in summing spectra. Default is 3.}
@@ -36,5 +45,6 @@ isoforma_pipeline(
 \item{correlation_score}{Range is 0-1 for the Isotope Correlation Score. Applies only when there's 2+ isotopes.}
 }
 \description{
-Run the main isoforma function
+#' @details Sum spectra based on peak selection from the pspecterlib ScanMetadata object,
+or provide a list of pspecterlib::peak_data objects to sum.
 }

@@ -2,35 +2,55 @@
 % Please edit documentation in R/sum_spectra.R
 \name{sum_spectra}
 \alias{sum_spectra}
-\title{Function to sum spectrum based on scan number}
+\title{Function to sum spectrum based on scan number selections, or a list of pspecterlib::peak_data objects}
 \usage{
-sum_spectra(ScanMetadata, ScanNumbers, MZRound = 3, Percentage = 25)
+sum_spectra(
+  ScanMetadata = NULL,
+  ScanNumbers = NULL,
+  PeakDataList = NULL,
+  PPMRound = 5,
+  MinimumAbundance = 0.01
+)
 }
 \arguments{
-\item{ScanMetadata}{Object of the scan_metadata class from get_scan_metadata
-in pspecterlib. Required.}
+\item{ScanMetadata}{(scan_metadata object) Object of the scan_metadata class from get_scan_metadata
+in pspecterlib. Required if PeakDataList is NULL.}
 
-\item{ScanNumbers}{A vector of scan numbers contained in the ScanMetadata
-object. Can be calculated by pull_scan_numbers. Required.}
+\item{ScanNumbers}{(numeric) Scan numbers contained in the ScanMetadata
+object. Can be calculated by pull_scan_numbers. Required if PeakDataList is NULL.}
 
-\item{MZRound}{Decimal place the MZ values should be rounded to for binning.
-Default is 3.}
+\item{PeakDataList}{(peak_data object) A list of peak_data scan objects. Required if ScanMetadata and
+ScanNumbers are NULL.}
 
-\item{Percentage}{The percentage of peaks to take. Default is 25\%.}
+\item{PPMRound}{(numeric) Number to round to in PPM. Default is 5.}
 }
 \description{
-Function to sum spectrum based on scan number
+Function to sum spectrum based on scan number selections, or a list of pspecterlib::peak_data objects
+}
+\details{
+Sum spectra based on peak selection from the pspecterlib ScanMetadata object,
+or provide a list of pspecterlib::peak_data objects to sum.
 }
 \examples{
 \dontrun{
 
-# Generate the ScanMetadata object 
-ScanMetadata <- pspecterlib::get_scan_metadata(
-    MSPath = "/Users/degn400/Desktop/IsoForma_Test/Sorghum-Histone0622162L11.mzML"
+#################################################
+## EXAMPLE 1: PULL FROM A SCAN METADATA OBJECT ##
+#################################################
+            
+            
+#######################################
+## EXAMPLE 2: SUM PEAK DATA TOGETHER ##               
+#######################################
+
+# Load 3 peaks to sum 
+PeakDataList <- list(
+  readRDS(system.file("extdata", "PeakData_1to1to1_1.RDS", package = "isoforma")),
+  readRDS(system.file("extdata", "PeakData_1to1to1_2.RDS", package = "isoforma")),
+  readRDS(system.file("extdata", "PeakData_1to1to1_3.RDS", package = "isoforma"))
 )
 
-# Run function
-sum_spectra(ScanMetdata = ScanMetadata,
-            ScanNumbers = c(1236, 1237, 1240, 1316, 1497, 1520, 1534))
+sum_spectra(PeakDataList = PeakDataList)
+
 }
 }
