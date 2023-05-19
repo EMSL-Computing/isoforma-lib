@@ -57,19 +57,21 @@ Glossary <- data.table::fread(
 #' Return a vector of scan numbers based on a Precursor Mass, mass tolerance, and 
 #'    isolation window filtering
 #' 
-#' @param Sequence A valid amino acid sequence. Any non-traditional symbols are
+#' @param Sequence (character) A valid amino acid sequence. Any non-traditional symbols are
 #'     removed and "M." is ignored. Required.
-#' @param Modification An IsoFormA modifications annotation written as 
+#' @param Modification (character) An IsoForma modifications annotation written as 
 #'     "PTM,Residue(Positions)[Number of Modifications]". Required. 
-#' @param ScanMetadata An object of the scan_metadata class from pspecterlib 
+#' @param ScanMetadata (pspecterlib scan metadata object) An object of the scan_metadata class from pspecterlib 
 #'     get_scan_metadata. Required.
-#' @param MassWindow A m/z window for acceptable precursor masses. Default is 5.
-#' @param MinMS1Matches Minimum number of MS1 peaks from the isotopic distribution
+#' @param MassWindow (numeric) A m/z window for acceptable precursor masses. Default is 5.
+#' @param MinMS1Matches (numeric) Minimum number of MS1 peaks from the isotopic distribution
 #'     of the full peptide sequence that fall within the MS2 window. Default is 3. 
-#' @param ActivationMethod The method used by the MS instrument to dissociate fragments.
+#' @param ActivationMethod (character) The method used by the MS instrument to dissociate fragments.
 #'     Default is ETD.
-#' @param AsDataframe A boolean to indicate whether you would like the values used
+#' @param AsDataframe (logical) A boolean to indicate whether you would like the values used
 #'     to determine the ScanNumbers included or not. Default is FALSE.
+#'     
+#' @returns A data.frame or list of MS2 scan numbers to sum 
 #' 
 #' @examples 
 #' \dontrun{

@@ -9,13 +9,11 @@
 #' 
 #' @examples
 #' \dontrun{
-#' 
 #' # Load fragment data
 #' MultipleFragments <- readRDS(system.file("extdata", "Fragments_1to1to1.RDS", package = "isoforma"))
 #' 
 #' # Sum isotopes
 #' sum_isotopes(MultipleFragments)
-#' 
 #' }
 #' @export
 sum_isotopes <- function(IsoformaFragments) {

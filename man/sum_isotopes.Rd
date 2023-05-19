@@ -21,12 +21,10 @@ Intensities are divided by their respective charge states and summed together.
 }
 \examples{
 \dontrun{
-
 # Load fragment data
 MultipleFragments <- readRDS(system.file("extdata", "Fragments_1to1to1.RDS", package = "isoforma"))
 
 # Sum isotopes
 sum_isotopes(MultipleFragments)
-
 }
 }

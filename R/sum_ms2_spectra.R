@@ -17,7 +17,6 @@
 #'  
 #' @examples
 #' \dontrun{
-#' 
 #' #################################################
 #' ## EXAMPLE 1: PULL FROM A SCAN METADATA OBJECT ##
 #' #################################################
@@ -35,7 +34,6 @@
 #' )
 #' 
 #' sum_ms2_spectra(PeakDataList = PeakDataList)
-#' 
 #' }
 #' @export
 sum_ms2_spectra <- function(ScanMetadata = NULL, 

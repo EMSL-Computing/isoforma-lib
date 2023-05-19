@@ -39,7 +39,6 @@ or provide a list of pspecterlib::peak_data objects to sum.
 }
 \examples{
 \dontrun{
-
 #################################################
 ## EXAMPLE 1: PULL FROM A SCAN METADATA OBJECT ##
 #################################################
@@ -57,6 +56,5 @@ PeakDataList <- list(
 )
 
 sum_ms2_spectra(PeakDataList = PeakDataList)
-
 }
 }

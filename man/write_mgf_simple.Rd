@@ -5,36 +5,46 @@
 \title{A simple MGF writer}
 \usage{
 write_mgf_simple(
-  mz,
-  intensity,
-  outpath,
-  mass = "Summed",
-  title = "MS/MS gfma zoospore H2B Ac",
-  pepmass = "29095.7",
-  charge = "10+",
-  rt = "10",
-  scans = "1"
+  MZ,
+  Intensity,
+  Outpath,
+  Mass = "Summed",
+  Title = "MS/MS gfma zoospore H2B Ac",
+  Pepmass = "29095.7",
+  Charge = "10+",
+  RT = "10",
+  Scans = "1"
 )
 }
 \arguments{
-\item{mz}{Vector of mz values. Must be same length as intensity vector.}
+\item{MZ}{(numeric) Vector of mz values. Must be same length as intensity vector.}
 
-\item{intensity}{Vector of intensity values. Must be same length as mz vector.}
+\item{Intensity}{(numeric) Vector of intensity values. Must be same length as mz vector.}
 
-\item{outpath}{Path to write file.}
+\item{Outpath}{(character) Path to write file.}
 
-\item{mass}{The mass type of the peptide. Default provided.}
+\item{Mass}{(character) The mass type of the peptide. Default provided.}
 
-\item{title}{Name for scan. Default provided.}
+\item{Title}{(character) Name for scan. Default provided.}
 
-\item{pepmass}{The mass of the peptide. Default provided.}
+\item{Pepmass}{(character) The mass of the peptide. Default provided.}
 
-\item{charge}{The charge of the peptide. Default provided.}
+\item{Charge}{(character) The charge of the peptide. Default provided.}
 
-\item{rt}{The retention time of the peptide. Default provided.}
+\item{RT}{(character) The retention time of the peptide. Default provided.}
 
-\item{scans}{The scan number of the peptide. Default provided.}
+\item{Scans}{(character) The scan number of the peptide. Default provided.}
+}
+\value{
+Writes an mgf file to the specified location in outpath
 }
 \description{
-A simple MGF writer
+Some tools require MGF files. This function was written to accommodate
+those external tools and provide a simple MGF write.
+}
+\examples{
+\dontrun{
+write_mgf_simple(MZ = c(1,2,3), Intensity = c(1,2,3), Outpath = "~/Downloads/Test.MGF")
+}
+    
 }
