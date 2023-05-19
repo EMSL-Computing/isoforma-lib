@@ -16,32 +16,63 @@ fragments_per_ptm(
 )
 }
 \arguments{
-\item{Sequences}{A vector of valid proforma sequences. Required.}
+\item{Sequences}{(character) A vector of valid ProForma sequences. Required.}
 
-\item{SummedSpectra}{A data.table with a "M/Z" and "Intensity" column, preferably
+\item{SummedSpectra}{(peak_data) A data.table with a "M/Z" and "Intensity" column, preferably
 calculated with the function sum_spectra. Required.}
 
-\item{PrecursorCharge}{A single numeric to determine the Precursor Charge state
+\item{PrecursorCharge}{(numeric) A single numeric to determine the Precursor Charge state
 (maximum charge) to consider fragments in the calculation. Required.}
 
-\item{ActivationMethod}{A string to determine ions. "HCD", "CID", and "ETD"
+\item{ActivationMethod}{(character) A string to determine ions. "HCD", "CID", and "ETD"
 select b and y; a, b, and y; and c and z, respectively. Anything else
 returns all 6 ions. Required.}
 
-\item{CorrelationScore}{A minimum Correlation Score to filter peaks with at
+\item{CorrelationScore}{(numeric) A minimum Correlation Score to filter peaks with at
 least 2 isotopes. Default is 0.7. Optional.}
 
-\item{PPMThreshold}{A minimum PPM Threshold for matching calculated and exprimental
+\item{PPMThreshold}{(numeric) A minimum PPM Threshold for matching calculated and exprimental
 peaks. Default is 10. Optional.}
 
-\item{IsotopeAlgorithm}{"isopat" uses the isopat package to calculate isotopes,
+\item{IsotopeAlgorithm}{(character) "isopat" uses the isopat package to calculate isotopes,
 while "Rdisop" uses the Rdisop package. Though more accurate, Rdisop has been
 known to crash on Windows computers when called iteratively more than 1000 times.
 Default is Rdisop, though isopat is an alternative.}
 
-\item{Messages}{A TRUE/FALSE to indicate whether status messages should be printed.
+\item{Messages}{(logic) A TRUE/FALSE to indicate whether status messages should be printed.
 Default is FALSE.}
 }
 \description{
 Calculate the fragments per PTM from the modifications_isoforma object
+}
+\details{
+Using the pspecterlib peak matching algorithm, iterate through every
+proteoform and return the calculated peaks. To quickly generate every
+proteoform, use the pspecterlib multiple_modifications function.
+}
+\examples{
+\dontrun{
+
+# Generate the list of PTMs to test 
+MultipleMods <- pspecterlib::multiple_modifications(
+  Sequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
+  Modification = "6.018427,V(17,26,70)[1]",
+  ReturnUnmodified = TRUE
+)
+
+# Load example summed peaks 
+SummedPeaks <- readRDS(system.file("extdata", "SummedPeaks_1to1to1.RDS", package = "isoforma"))
+
+# Run the function
+fragments_per_ptm(
+   Sequences = MultipleMods, 
+   SummedSpectra = SummedPeaks, 
+   PrecursorCharge = 11, 
+   ActivationMethod = "ETC",
+   CorrelationScore = 0, # Here, we don't care about correlation score filtering 
+   Messages = TRUE
+)
+
+}
+    
 }
