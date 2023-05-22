@@ -1,4 +1,4 @@
-#' Run the main isoforma function
+#' Runs the 
 #' 
 #' @description Sum spectra based on peak selection from the pspecterlib ScanMetadata object, 
 #'    or provide a list of pspecterlib::peak_data objects to sum. 
