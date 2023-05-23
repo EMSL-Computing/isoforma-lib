@@ -92,7 +92,7 @@ calculate_proportions <- function(AbundanceMatrix,
   AbunMat <- AbunMat %>% dplyr::relocate(Ion)
   
   # 4. Calculate means and confidence interval using a negative binomial distribution
-  Medians <- do.call(dplyr::bind_rows, lapply(ComparisonRanges$Name[1:nrow(ComparisonRanges)-1], function(Name) {
+  Means <- do.call(dplyr::bind_rows, lapply(ComparisonRanges$Name[1:ncol(ComparisonRanges)-1], function(Name) {
     
     # Define range
     Range <- unlist(ComparisonRanges[ComparisonRanges$Name == Name, "Start"]):unlist(ComparisonRanges[ComparisonRanges$Name == Name, "Stop"])
@@ -103,7 +103,7 @@ calculate_proportions <- function(AbundanceMatrix,
     nloglikbeta <- function(mu, sig) {
       alpha = mu^2*(1-mu)/sig^2-mu
       beta = alpha*(1/mu-1)
-      return(-1 * sum(dbeta(x, alpha, beta, log=TRUE)))
+      return(suppressWarnings(-1 * sum(dbeta(x, alpha, beta, log=TRUE))))
     }
     mle_fit <- suppressWarnings(stats4::mle(nloglikbeta, start = list(mu = mean(Values), sig = sd(Values))))
     theConfint <- stats4::confint(mle_fit)
@@ -117,10 +117,15 @@ calculate_proportions <- function(AbundanceMatrix,
     )
     
   }))
-  Medians <- dplyr::bind_rows(Medians, c(Name = ComparisonRanges$Name[nrow(ComparisonRanges)], Pre = NA, LowerCI = NA, UpperCI = NA))
-  
+  Means <- dplyr::bind_rows(Means, c(
+    Name = ComparisonRanges$Name[nrow(ComparisonRanges)], 
+    Pre = 1, 
+    LowerCI = 1 - as.numeric(Means$UpperCI[nrow(Means)]) + as.numeric(Means$Pre[nrow(Means)]),
+    UpperCI = 1 - as.numeric(Means$LowerCI[nrow(Means)]) + as.numeric(Means$Pre[nrow(Means)])
+  ))
+
   # 5. Ensure each value is higher than the next
-  Pre <- Medians
+  Pre <- Means
   Pre$Pre <- as.numeric(Pre$Pre)
   Pre$LowerCI <- as.numeric(Pre$LowerCI)
   Pre$UpperCI <- as.numeric(Pre$UpperCI)
@@ -129,9 +134,10 @@ calculate_proportions <- function(AbundanceMatrix,
   if (length(PreNums) > 1) {
     PreTest <- Pre[PreNums,] %>%
       dplyr::mutate(
-        Larger = Pre > dplyr::lag(Pre)
+        Larger = Pre > dplyr::lag(Pre) 
       ) 
     PreTest$Larger[1] <- TRUE
+    PreTest$Larger[nrow(PreTest)] <- TRUE
     PreTest <- PreTest[PreTest$Larger,]
   } else if (length(PreNums) == 1) {
     PreTest <- Pre[PreNums,]
@@ -145,26 +151,28 @@ calculate_proportions <- function(AbundanceMatrix,
     PreTest <- PreTest %>% 
       dplyr::mutate(
         Proportion = Pre - dplyr::lag(Pre),
-        LowerCI = LowerCI - dplyr::lag(LowerCI),
-        UpperCI = UpperCI - dplyr::lag(UpperCI)
+        TrueLowerCI = LowerCI - dplyr::lag(Pre),
+        TrueUpperCI = UpperCI - dplyr::lag(Pre)
       )
     PreTest$Proportion[1] <- PreTest$Pre[1]
-    PreTest$LowerCI[1] <- PreTest$LowerCI[1]
-    PreTest$UpperCI[1] <- PreTest$UpperCI[1]
+    PreTest$TrueLowerCI[1] <- PreTest$LowerCI[1]
+    PreTest$TrueUpperCI[1] <- PreTest$UpperCI[1]
     PreTest <- PreTest %>% dplyr::mutate(
-      Proportion = ifelse(Proportion <= 0, NA, Proportion)
+      Proportion = ifelse(Proportion <= 0, NA, Proportion),
+      TrueLowerCI = ifelse(TrueLowerCI < 0, 0, TrueLowerCI),
+      TrueUpperCI = ifelse(TrueUpperCI > 1, 1, TrueUpperCI)
     )
   } else if (nrow(PreTest) == 1) {
     PreTest$Proportion <- PreTest$Pre
+    PreTest$TrueLowerCI <- PreTest$LowerCI
+    PreTest$TrueUpperCI <- PreTest$UpperCI
   }
   
-  Proportions <- dplyr::bind_rows(
-    data.table::data.table(
-      "Name" = unlist(Pre$Name)[unlist(Pre$Name) %in% PreTest$Name == FALSE],
-      "Proportion" = NA
-    ),
-    PreTest[,c("Name", "Proportion")]
-  )
+  browser()
+  
+  # Make proportions data.frame
+  Proportions <- PreTest %>%
+    dplyr::select()
 
   
   if (sum(Proportions$Proportion, na.rm = T) > 1) {
@@ -185,11 +193,8 @@ calculate_proportions <- function(AbundanceMatrix,
   # 9. Order and add a standard error
   Proportions$Name <- factor(Proportions$Name, levels = ComparisonRanges$Name)
   Proportions <- Proportions %>% dplyr::arrange(Name)
-  
-  browser()
-  
-  Proportions$LowerCI <- PreTest$LowerCI
-  Proportions$UpperCI <- PreTest$UpperCI
+  Proportions$LowerCI <- c(PreTest$LowerCI, NA)
+  Proportions$UpperCI <- c(PreTest$UpperCI, NA)
   Proportions <- Proportions %>% dplyr::rename(Modification = Name)
   
   # 10. Calculate the last confidence interval if possible
@@ -209,9 +214,11 @@ calculate_proportions <- function(AbundanceMatrix,
     Proportions[nrow(Proportions), "LowerCI"] <- LastLower
     Proportions[nrow(Proportions), "UpperCI"] <- LastUpper
     
+    # Now fix the second to last one
+    Proportions[nrow(Proportions)-1, "LowerCI"] <- SecondLastLower - Proportions[nrow(Proportions)-1, "Proportion"]
+    Proportions[nrow(Proportions)-1, "UpperCI"] <- SecondLastUpper - Proportions[nrow(Proportions)-1, "Proportion"]
+    
   }
-  
-  browser()
 
   # Make percentage plot if necessary
   if (IncludePlot) {
@@ -230,11 +237,9 @@ calculate_proportions <- function(AbundanceMatrix,
          "x" = "x"))  
     }
     
-    PercentPlot$Error <- as.numeric(PercentPlot$Error)
-    
     Plot <- ggplot2::ggplot(PercentPlot, ggplot2::aes(x = x, y = Proportion, fill = Modification)) +
       ggplot2::geom_bar(stat = "identity", position = "dodge") + ggplot2::theme_bw() +
-     # ggplot2::geom_errorbar(ggplot2::aes(ymin = Proportion - Error, ymax = Proportion + Error), width = 0.2, position = ggplot2::position_dodge(.9)) +
+      ggplot2::geom_errorbar(ggplot2::aes(ymin = LowerCI, ymax = UpperCI), width = 0.2, position = ggplot2::position_dodge(.9)) +
       ggplot2::theme(axis.title.x = ggplot2::element_blank(), axis.text.x = ggplot2::element_blank()) 
     
     return(list(Proportions, Plot))
