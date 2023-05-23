@@ -73,7 +73,7 @@ rbind(
 ) %>%
   dplyr::mutate(Ratio = factor(Ratio, levels = c("1:1:1", "1:4:8", "4:1:8", "8:1:4"))) %>%
   dplyr::mutate(Type = factor(Type, levels = c("Brunner et. al", "IsoForma", "Truth"))) %>%
-  ggplot(aes(x = Modification, y = Proportion, fill = Type)) + 
+  ggplot(aes(x = Modification, y = Proportion, fill = Type)) + ylim(c(0,1)) + 
    geom_bar(stat = "identity", position = "dodge", color = "black") + 
    scale_fill_manual(values = c("steelblue", "forestgreen")) + theme_bw() +
   ggplot2::geom_errorbar(ggplot2::aes(ymin = LowerCI, ymax = UpperCI), width = 0.2, position = ggplot2::position_dodge(.9)) +
