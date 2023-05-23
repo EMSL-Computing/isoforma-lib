@@ -168,58 +168,16 @@ calculate_proportions <- function(AbundanceMatrix,
     PreTest$TrueUpperCI <- PreTest$UpperCI
   }
   
-  browser()
-  
   # Make proportions data.frame
   Proportions <- PreTest %>%
-    dplyr::select()
-
+    dplyr::select(Name, Proportion, TrueLowerCI, TrueUpperCI) %>%
+    dplyr::rename(LowerCI = TrueLowerCI, UpperCI = TrueUpperCI)
   
-  if (sum(Proportions$Proportion, na.rm = T) > 1) {
-    Proportions <- Proportions %>%
-      dplyr::mutate(
-        Proportion = ifelse(is.na(Proportion), 0, Proportion),
-        CumSum = cumsum(Proportion),
-        Proportion = ifelse(CumSum > 1 | Proportion < 0.0001, NA, Proportion)
-      ) %>% 
-      dplyr::select(-CumSum)
-  }
-  
-  # 8. If there is only one NA left in the dataset, we can calculate it 
-  if (sum(is.na(Proportions$Proportion)) == 1) {
-    Proportions$Proportion[is.na(Proportions$Proportion)] <- 1 - sum(Proportions$Proportion, na.rm = T)
-  }
-  
-  # 9. Order and add a standard error
+  # 7. Order and rename
   Proportions$Name <- factor(Proportions$Name, levels = ComparisonRanges$Name)
   Proportions <- Proportions %>% dplyr::arrange(Name)
-  Proportions$LowerCI <- c(PreTest$LowerCI, NA)
-  Proportions$UpperCI <- c(PreTest$UpperCI, NA)
   Proportions <- Proportions %>% dplyr::rename(Modification = Name)
   
-  # 10. Calculate the last confidence interval if possible
-  if (all(!is.na(Proportions$Proportion))) {
-    
-    # Take 2nd to last CI
-    SecondLastLower <- Proportions[nrow(Proportions) - 1, "LowerCI"] %>% as.numeric()
-    SecondLastUpper <- Proportions[nrow(Proportions) - 1, "UpperCI"] %>% as.numeric()
-    
-    # Calculate Last Lower and Last Upper
-    LastLower <- 1 - SecondLastUpper
-    LastLower <- ifelse(LastLower < 0, 0, LastLower)
-    LastUpper <- 1 - SecondLastLower
-    LastUpper <- ifelse(LastUpper > 1, 1, LastUpper)
-    
-    # Save results
-    Proportions[nrow(Proportions), "LowerCI"] <- LastLower
-    Proportions[nrow(Proportions), "UpperCI"] <- LastUpper
-    
-    # Now fix the second to last one
-    Proportions[nrow(Proportions)-1, "LowerCI"] <- SecondLastLower - Proportions[nrow(Proportions)-1, "Proportion"]
-    Proportions[nrow(Proportions)-1, "UpperCI"] <- SecondLastUpper - Proportions[nrow(Proportions)-1, "Proportion"]
-    
-  }
-
   # Make percentage plot if necessary
   if (IncludePlot) {
     

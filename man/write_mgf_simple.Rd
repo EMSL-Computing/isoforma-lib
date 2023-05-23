@@ -40,7 +40,7 @@ Writes an mgf file to the specified location in outpath
 }
 \description{
 Some tools require MGF files. This function was written to accommodate
-those external tools and provide a simple MGF write.
+those external tools by providing a simple MGF writer.
 }
 \examples{
 \dontrun{

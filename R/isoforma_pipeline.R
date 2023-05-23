@@ -1,30 +1,35 @@
-#' Runs the 
+#' Calculates fragments, sums isotopes and charge states, generates the abundance matrix,
+#'     and calculates the proportions of each proteoform
 #' 
-#' @description Sum spectra based on peak selection from the pspecterlib ScanMetadata object, 
-#'    or provide a list of pspecterlib::peak_data objects to sum. 
+#' @description A wrapper function to run fragments_per_ptm, sum_isotopes, abundance_matrix,
+#'    and calculate_proportions.
 #' 
-#' @param UnmodifiedSequence (character) The unmodified peptide sequence. Required.
-#' @param Modifications (character) List of modifications to test. See ?pspecterlib::multiple_modifications for example. Required.
-#' @param RTStart (numeric) The retention time at which to start summing applicable MS2 spectra. Required if 
-#'    PeakDataList is NULL. See examples. 
-#' @param RTEnd (numeric) The retention time at which to stop summing applicable MS2 spectra. Required if PeakDataList 
-#'    is NULL. See examples. 
-#' @param MSPath (character) The path to the mzML or raw file. Required if PeakDataList is NULL. See examples.
-#' @param PeakDataList (list of peak data objects) A list of peak_data scan objects. 
-#'    Required if no MSPath is supplied. See examples for more details.
-#' @param OutputPath (character) The path to output the isoforma results folder. 
-#' @param IsotopeAlgorithm (character) "isopat" uses the isopat package to calculate isotopes,
-#'     while "Rdisop" uses the Rdisop package. Though more accurate, Rdisop has been
-#'     known to crash on Windows computers when called iteratively more than 1000 times.
-#'     Default is Rdisop, though isopat is an alternative.
-#' @param IonGroup (character) Must be an ion group to subset data down to (a-c or x-z). Default is "c".
-#' @param MassWindow (numeric) m/z values to sum isotopes over. Written Daltons and is applied as -/+ 10 Da. Default is 10.
-#' @param PPMRound (numeric)
+#' @param Sequences (character) A vector of valid ProForma sequences. Required.
+#' @param SummedSpectra (peak_data) A data.table with a "M/Z" and "Intensity" column, 
+#'     preferably calculated with the function sum_spectra. Required.
+#' @param PrecursorCharge (numeric) A single numeric to determine the Precursor 
+#'     Charge state (maximum charge) to consider fragments in the calculation. Required.
+#' @param ActivationMethod (character) A string to determine ions. "HCD", "CID", and 
+#'     "ETD" select b and y; a, b, and y; and c and z, respectively. Anything else 
+#'     returns all 6 ions. Required.
+#' @param IonGroup (character) Must be an ion group to subset data down to (a-c or x-z). Required.
+#' @param CorrelationScore (numeric) A minimum Correlation Score to filter peaks with 
+#'     at least 2 isotopes. Default is 0.7. Optional.
+#' @param PPMThreshold (numeric) A minimum PPM Threshold for matching calculated 
+#'     and exprimental peaks. Default is 10. Optional.
+#' @param IsotopeAlgorithm (character) "isopat" uses the isopat package to calculate 
+#'     isotopes, while "Rdisop" uses the Rdisop package. Though more accurate, 
+#'     Rdisop has been known to crash on Windows computers when called iteratively 
+#'     more than 1000 times. Default is Rdisop, though isopat is an alternative.
+#' @param Message (logic) A TRUE/FALSE to indicate whether status messages should be printed. Default is FALSE.
+#' @param Top	(integer) The top N proportions to return, ranked from higest to lowest. Default is 8.
 #' 
-#' @returns Many objects
+#' @returns (list) A list with 5 objects: matched peaks isoforma, summed isotopes isoforma, 
+#'     abundance matrix isoforma, the proportions dataframe, and a ggplot of the proportions
 #' 
 #' @examples
 #' \dontrun{
+#' 
 #' ####################################
 #' ## EXAMPLE 1: SKIP PEAK SELECTION ##
 #' ####################################
@@ -36,24 +41,28 @@
 #'  readRDS(system.file("extdata", "PeakData_1to1to1_3.RDS", package = "isoforma"))
 #' )
 #' 
-#' # Run main isoforma function
-#' isoforma_pipeline(
-#'    UnmodifiedSequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
-#'    Modification =  "6.018427,V(17,26,70)[1]",
-#'    PeakDataList = PeakDataList,
-#'    OutputPath = "~/Downloads/Isoforma_Brunner_Example", 
-#'    IsotopeAlgorithm = "Rdisop", 
-#'    PrecursorCharge = 11, 
-#'    ActivationMethod = "ETD",
-#'    IonGroup = "c",
+#' # Sum peaks 
+#' PeakSum <- sum_ms2_spectra(PeakDataList = PeakDataList)
 #' 
-#' 
-#' 
-#' 
+#' # Get proteoform strings
+#' MultipleMods <- pspecterlib::multiple_modifications(
+#'     Sequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
+#'     Modification = "6.018427,V(17,26,70)[1]",
+#'     ReturnUnmodified = TRUE
 #' )
-#' 
-#' 
-#' 
+#'
+#' # Run main pipeline function
+#' IsoForma <- isoforma_pipeline(
+#'     Sequences = MultipleMods,
+#'     SummedSpectra = PeakSum,
+#'     PrecursorCharge = 11,
+#'     ActivationMethod = "ETD",
+#'     IonGroup = "c",
+#'     CorrelationScore = 0,
+#'     IsotopeAlgorithm = "Rdisop", # If this step crashes, switch to "isopat" 
+#'     Messages = TRUE
+#' )
+#'
 #' #########################################
 #' ## EXAMPLE 2: AUTOMATED PEAK SELECTION ##
 #' #########################################
@@ -62,104 +71,57 @@
 #' 
 #'
 #' @export
-isoforma_pipeline <- function(unmodifiedsequence,
-                              modifications,
-                              rt_start,
-                              rt_end,
-                              mzML_path,
-                              output_path,
-                              IsotopeAlgorithm,
-                              IonGroup = "c",
-                              mass_window = 10,
-                              mz_round = 3,
-                              correlation_score = 0.7) {
-
-  #################
-  ## LOAD INPUTS ##
-  #################
-
-  # Check that unmodified_sequence is a valid input
-  if (!pspecterlib::is_sequence(unmodified_sequence)) {
-    stop(paste(unmodified_sequence, "is not an acceptable unmodified amino acid sequence."))
-  }
-
-  # Modifications should be a string
-  if (!is.character(modifications)) {
-    stop("modifications must be a string")
-  }
-
-  # Load mzML file
-  if (grepl(".mzML", mzML_path, fixed = TRUE) == FALSE) {
-    stop("mzML_path must be a mzML file.")
-  }
-  ScanMetadata <- pspecterlib::get_scan_metadata(mzML_path)
+isoforma_pipeline <- function(Sequences,
+                              SummedSpectra,
+                              PrecursorCharge,
+                              ActivationMethod,
+                              IonGroup,
+                              CorrelationScore = 0.7,
+                              PPMThreshold = 10,
+                              IsotopeAlgorithm = "Rdisop",
+                              Messages = FALSE, 
+                              Top = 8) {
 
   ##################
   ## RUN ISOFORMA ##
   ##################
 
-  # 0. Create output folder
-  #out <- file.path(output_path, paste(sub(".mzml", "", basename(mzML_path), ignore.case = TRUE), "isoforma_out", sep = "_"))
-  out <- output_path
-
-  if (!dir.exists(out)) {dir.create(out)}
-
-  # 1. Output scan number selection
-  ScanNums <- pull_scan_numbers(Sequence = unmodified_sequence,
-                                Modification = modifications,
-                                ScanMetadata = ScanMetadata,
-                                RTStart = rt_start,
-                                RTEnd = rt_end,
-                                AsDataframe = TRUE,
-                                MassWindow = mass_window)
-
-  ScanNumbers <- ScanNums[[1]]
-  ExactMass <- ScanNums[[2]]
-  if (is.null(ScanNumbers) | any(TRUE %in% ScanNumbers$Use) == FALSE) {
-    utils::write.table("No MS2 Scan Numbers detected.", file.path(out, "Message.txt"))
-    return(NULL)
-  }
-  utils::write.csv(ScanNumbers, file = file.path(out, "ScanNumbers.csv"), row.names = F, quote = F)
-
-  # 2. Sum Spectra
-  SumSpectra <- sum_spectra(ScanMetadata = ScanMetadata,
-                            ScanNumbers = ScanNumbers$`Scan Number`[ScanNumbers$Use],
-                            MZRound = mz_round,
-                            Percent = 100)
-  utils::write.csv(SumSpectra, file = file.path(out, "SumSpectra.csv"), row.names = F, quote = F)
-  write_mgf_simple(round(SumSpectra$`M/Z`, 4), round(SumSpectra$Intensity, 4), file.path(out, "SumSpectra.mgf"),
-                   title = strsplit(out, "/", fixed = T) %>% unlist() %>% tail(1),
-                   pepmass = ExactMass, charge = paste0(max(ScanNumbers$`Precursor Charge`), "+"),
-                   rt = mean(ScanNumbers$`Retention Time`), scans = paste0(ScanNumbers$`Scan Number`, collapse = " & "))
+  # Steps 1 and 2, which are peak selection and peak summing, can be accomplished 
+  # outside of this function using pull_scan_numbers() and sum_ms2_spectra().
 
   # 3. Calculate fragments per PTM
-  FragmentsPerPTM <- fragments_per_ptm(Sequences = c(unmodified_sequence, create_modifications_object(unmodified_sequence, modifications)),
-                                       SummedSpectra = SumSpectra,
-                                       PrecursorCharge = max(ScanNumbers$`Precursor Charge`),
-                                       ActivationMethod = unlist(ScanNumbers[ScanNumbers$Use, "Activation Method"])[1],
-                                       CorrelationScore = correlation_score,
-                                       IsotopeAlgorithm = IsotopeAlgorithm,
-                                       PPMThreshold = 5,
-                                       Messages = TRUE)
-
-  plot <- ptm_heatmap(FragmentsPerPTM)
-  ggplot2::ggsave(file.path(out, "annotated_ptms_heatmap.png"), plot)
-  plot2 <- annotated_spectrum_ptms_plot(SumSpectra, FragmentsPerPTM)
-  htmlwidgets::saveWidget(plot2, file.path(out, "Spectra.html"))
-
+  FragmentsPerPTM <- fragments_per_ptm(Sequences = Sequences,
+                                       SummedSpectra = SummedSpectra,
+                                       PrecursorCharge = PrecursorCharge, 
+                                       ActivationMethod = ActivationMethod,
+                                       CorrelationScore = CorrelationScore, 
+                                       PPMThreshold = PPMThreshold, 
+                                       IsotopeAlgorithm = IsotopeAlgorithm, 
+                                       Messages = Messages)
+  
   # 4. Sum isotopes
   SummedIsotopes <- sum_isotopes(FragmentsPerPTM)
 
   # 5. Calculate abundance matrix
-  AbundanceMatrix <- abundance_matrix(IonGroup, SummedIsotopes)
-  utils::write.csv(AbundanceMatrix$AbundanceMatrix, file.path(out, "AbundanceMatrix.csv"), quote = F, row.names = F)
+  AbundanceMatrix <- abundance_matrix(SummedIsotopes = SummedIsotopes,
+                                      IonGroup = IonGroup)
 
   # 6. Calculate Proportions
-  Proportions <- calculate_proportions(AbundanceMatrix, modifications, IncludePlot = TRUE)
-  utils::write.csv(Proportions[[1]], file.path(out, "Proportions.csv"), quote = F, row.names = F)
-  ggplot2::ggsave(file.path(out, "Proportions.png"), Proportions[[2]])
+  Proportions <- calculate_proportions(
+    AbundanceMatrix = AbundanceMatrix,
+    Top = Top,
+    IncludePlot = TRUE
+  )
 
-  # Clear out scan metadata
-  rm(ScanMetadata)
+  # Return all objects
+  return(
+    list(
+      FragmentsPerPTM, 
+      SummedIsotopes, 
+      AbundanceMatrix, 
+      Proportions[[1]],
+      Proportions[[2]]
+    )
+  )
 
 }

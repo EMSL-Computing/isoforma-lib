@@ -2,49 +2,100 @@
 % Please edit documentation in R/isoforma_pipeline.R
 \name{isoforma_pipeline}
 \alias{isoforma_pipeline}
-\title{Run the main isoforma function}
+\title{Calculates fragments, sums isotopes and charge states, generates the abundance matrix,
+and calculates the proportions of each proteoform}
 \usage{
 isoforma_pipeline(
-  unmodified_sequence,
-  modifications,
-  rt_start,
-  rt_end,
-  mzML_path,
-  output_path,
-  IsotopeAlgorithm,
-  IonGroup = "c",
-  mass_window = 10,
-  mz_round = 3,
-  correlation_score = 0.7
+  Sequences,
+  SummedSpectra,
+  PrecursorCharge,
+  ActivationMethod,
+  IonGroup,
+  CorrelationScore = 0.7,
+  PPMThreshold = 10,
+  IsotopeAlgorithm = "Rdisop",
+  Messages = FALSE,
+  Top = 8
 )
 }
 \arguments{
-\item{unmodified_sequence}{The unmodified peptide sequence. Required.}
+\item{Sequences}{(character) A vector of valid ProForma sequences. Required.}
 
-\item{modifications}{List of modifications to test. See ?create_modifications_object for example. Required.}
+\item{SummedSpectra}{(peak_data) A data.table with a "M/Z" and "Intensity" column,
+preferably calculated with the function sum_spectra. Required.}
 
-\item{rt_start}{The retention time at which to start summing applicable MS2 spectra. Required.}
+\item{PrecursorCharge}{(numeric) A single numeric to determine the Precursor
+Charge state (maximum charge) to consider fragments in the calculation. Required.}
 
-\item{rt_end}{The retetntion time at which to stop summing applicable MS2 spectra. Required.}
+\item{ActivationMethod}{(character) A string to determine ions. "HCD", "CID", and
+"ETD" select b and y; a, b, and y; and c and z, respectively. Anything else
+returns all 6 ions. Required.}
 
-\item{mzML_path}{The path to the mzML file. Required.}
+\item{IonGroup}{(character) Must be an ion group to subset data down to (a-c or x-z). Required.}
 
-\item{output_path}{The path to output the isoforma results folder. Default is same as mzML_path.}
+\item{CorrelationScore}{(numeric) A minimum Correlation Score to filter peaks with
+at least 2 isotopes. Default is 0.7. Optional.}
 
-\item{IsotopeAlgorithm}{"isopat" uses the isopat package to calculate isotopes,
-while "Rdisop" uses the Rdisop package. Though more accurate, Rdisop has been
-known to crash on Windows computers when called iteratively more than 1000 times.
-Default is Rdisop, though isopat is an alternative.}
+\item{PPMThreshold}{(numeric) A minimum PPM Threshold for matching calculated
+and exprimental peaks. Default is 10. Optional.}
 
-\item{IonGroup}{Must be an ion group to subset data down to (a-c or x-z). Default is "c".}
+\item{IsotopeAlgorithm}{(character) "isopat" uses the isopat package to calculate
+isotopes, while "Rdisop" uses the Rdisop package. Though more accurate,
+Rdisop has been known to crash on Windows computers when called iteratively
+more than 1000 times. Default is Rdisop, though isopat is an alternative.}
 
-\item{mass_window}{m/z values to sum isotopes over. Written Daltons and is applied as -/+ 10 Da. Default is 10.}
+\item{Top}{(integer) The top N proportions to return, ranked from higest to lowest. Default is 8.}
 
-\item{mz_round}{Decimal place that binned m/z values should be rounded to in summing spectra. Default is 3.}
-
-\item{correlation_score}{Range is 0-1 for the Isotope Correlation Score. Applies only when there's 2+ isotopes.}
+\item{Message}{(logic) A TRUE/FALSE to indicate whether status messages should be printed. Default is FALSE.}
+}
+\value{
+(list) A list with 5 objects:
 }
 \description{
-#' @details Sum spectra based on peak selection from the pspecterlib ScanMetadata object,
-or provide a list of pspecterlib::peak_data objects to sum.
+A wrapper function to run fragments_per_ptm, sum_isotopes, abundance_matrix,
+and calculate_proportions.
+}
+\examples{
+\dontrun{
+
+####################################
+## EXAMPLE 1: SKIP PEAK SELECTION ##
+####################################
+
+# Load 3 peaks to sum 
+PeakDataList <- list(
+ readRDS(system.file("extdata", "PeakData_1to1to1_1.RDS", package = "isoforma")),
+ readRDS(system.file("extdata", "PeakData_1to1to1_2.RDS", package = "isoforma")),
+ readRDS(system.file("extdata", "PeakData_1to1to1_3.RDS", package = "isoforma"))
+)
+
+# Sum peaks 
+PeakSum <- sum_ms2_spectra(PeakDataList = PeakDataList)
+
+# Get proteoform strings
+MultipleMods <- pspecterlib::multiple_modifications(
+    Sequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
+    Modification = "6.018427,V(17,26,70)[1]",
+    ReturnUnmodified = TRUE
+)
+
+# Run main pipeline function
+IsoForma <- isoforma_pipeline(
+    Sequences = MultipleMods,
+    SummedSpectra = PeakSum,
+    PrecursorCharge = 11,
+    ActivationMethod = "ETD",
+    IonGroup = "c",
+    CorrelationScore = 0,
+    IsotopeAlgorithm = "Rdisop", # If this step crashes, switch to "isopat" 
+    Messages = TRUE
+)
+
+#########################################
+## EXAMPLE 2: AUTOMATED PEAK SELECTION ##
+#########################################
+
+}
+
+
 }
