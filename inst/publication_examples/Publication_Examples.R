@@ -60,10 +60,24 @@ IsoForma814 <- isoforma_pipeline(Sequences = MultipleMods, SummedSpectra = PeakS
 # Quick Visualize Results
 library(patchwork)
 library(ggplot2)
-(IsoForma111[[5]] + ggtitle("1:1:1")) +
-(IsoForma148[[5]] + ggtitle("1:4:8")) +
-(IsoForma418[[5]] + ggtitle("4:1:8")) +
-(IsoForma814[[5]] + ggtitle("8:1:4")) + patchwork::plot_annotation(title = paste("Ion Type:", ion))
+
+rbind(
+  IsoForma111[[4]] %>% dplyr::mutate(Type = "IsoForma", Ratio = "1:1:1"),
+  IsoForma111[[4]] %>% dplyr::mutate(Type = "Truth", Ratio = "1:1:1", Proportion = c(1/3, 1/3, 1/3), LowerCI = NA, UpperCI = NA),
+  IsoForma148[[4]] %>% dplyr::mutate(Type = "IsoForma", Ratio = "1:4:8"),
+  IsoForma148[[4]] %>% dplyr::mutate(Type = "Truth", Ratio = "1:4:8", Proportion = c(1/13, 4/13, 8/13), LowerCI = NA, UpperCI = NA),
+  IsoForma418[[4]] %>% dplyr::mutate(Type = "IsoForma", Ratio = "4:1:8"),
+  IsoForma418[[4]] %>% dplyr::mutate(Type = "Truth", Ratio = "4:1:8", Proportion = c(4/13, 1/13, 8/13), LowerCI = NA, UpperCI = NA),
+  IsoForma814[[4]] %>% dplyr::mutate(Type = "IsoForma", Ratio = "8:1:4"),
+  IsoForma814[[4]] %>% dplyr::mutate(Type = "Truth", Ratio = "8:1:4", Proportion = c(8/13, 1/13, 4/13), LowerCI = NA, UpperCI = NA)
+) %>%
+  dplyr::mutate(Ratio = factor(Ratio, levels = c("1:1:1", "1:4:8", "4:1:8", "8:1:4"))) %>%
+  dplyr::mutate(Type = factor(Type, levels = c("Brunner et. al", "IsoForma", "Truth"))) %>%
+  ggplot(aes(x = Modification, y = Proportion, fill = Type)) + 
+   geom_bar(stat = "identity", position = "dodge", color = "black") + 
+   scale_fill_manual(values = c("steelblue", "forestgreen")) + theme_bw() +
+  ggplot2::geom_errorbar(ggplot2::aes(ymin = LowerCI, ymax = UpperCI), width = 0.2, position = ggplot2::position_dodge(.9)) +
+  facet_wrap(.~Ratio)
 
 
 

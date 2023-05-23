@@ -149,7 +149,7 @@ sum_ms2_spectra <- function(ScanMetadata = NULL,
     ) %>%
     dplyr::mutate(ScaleAbundance = Intensity / max(Intensity) * 100) %>%
     dplyr::filter(ScaleAbundance > MinimumAbundance) 
-  
+
   # Make Final Spectra
   FinalSpectra <- pspecterlib::make_peak_data(
     MZ = Spectra_Rounded$`M/Z`,

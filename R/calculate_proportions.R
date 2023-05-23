@@ -91,7 +91,7 @@ calculate_proportions <- function(AbundanceMatrix,
   AbunMat <- AbunMat %>% dplyr::relocate(Ion)
   
   # 4. Calculate means and confidence interval using a negative binomial distribution
-  Means <- do.call(dplyr::bind_rows, lapply(ComparisonRanges$Name[1:ncol(ComparisonRanges)-1], function(Name) {
+  Means <- do.call(dplyr::bind_rows, lapply(ComparisonRanges$Name[1:(ncol(ComparisonRanges)-1)], function(Name) {
     
     # Define range
     Range <- unlist(ComparisonRanges[ComparisonRanges$Name == Name, "Start"]):unlist(ComparisonRanges[ComparisonRanges$Name == Name, "Stop"])
