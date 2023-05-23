@@ -126,7 +126,7 @@ fragments_per_ptm <- function(Sequences,
   #########################
   
   # Message user if applicable
-  if (Messages) {message("Starting fragment calculations in parallel")}
+  if (Messages) {message("Starting fragment calculations")}
   
   # Pull the ions 
   theIons <- .determine_ions(ActivationMethod)
@@ -135,11 +135,8 @@ fragments_per_ptm <- function(Sequences,
   thePeaks <- pspecterlib::make_peak_data(MZ = SummedSpectra$`M/Z`,
                                           Intensity = SummedSpectra$Intensity)
   
-  # Implement parallel computing for speed 
-  doParallel::registerDoParallel(parallel::detectCores()) 
-  
   # Calculate all fragments 
-  Fragments <- foreach(seq = Sequences) %dopar% {
+  Fragments <- lapply(Sequences, function(seq) {
     
     return(
       pspecterlib::get_matched_peaks(
@@ -154,7 +151,7 @@ fragments_per_ptm <- function(Sequences,
       )
     )
     
-  }
+  })
   
   # Name Fragments
   names(Fragments) <- c(ModNames)

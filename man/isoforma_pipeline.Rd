@@ -49,7 +49,8 @@ more than 1000 times. Default is Rdisop, though isopat is an alternative.}
 \item{Message}{(logic) A TRUE/FALSE to indicate whether status messages should be printed. Default is FALSE.}
 }
 \value{
-(list) A list with 5 objects:
+(list) A list with 5 objects: matched peaks isoforma, summed isotopes isoforma,
+abundance matrix isoforma, the proportions dataframe, and a ggplot of the proportions
 }
 \description{
 A wrapper function to run fragments_per_ptm, sum_isotopes, abundance_matrix,

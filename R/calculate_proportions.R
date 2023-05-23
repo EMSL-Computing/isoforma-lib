@@ -85,8 +85,7 @@ calculate_proportions <- function(AbundanceMatrix,
   # 3. Divide each intensity by the last intensity in the row
   AbunMat <- AbundanceMatrix[,2:ncol(AbundanceMatrix)] 
   End <- ncol(AbunMat)
-  AbunMat <- as.matrix(AbunMat) / AbunMat[,End] #(AbunMat + AbunMat[,End])
-  AbunMat[AbunMat > 1 & !is.na(AbunMat)] <- 1 / AbunMat[AbunMat > 1 & !is.na(AbunMat)]
+  AbunMat <- as.matrix(AbunMat) / (AbunMat + AbunMat[,End])
   AbunMat <- data.table::data.table(AbunMat)
   AbunMat$Ion <- AbundanceMatrix$Ion %>% gsub(pattern = "[[:alpha:]]", replacement = "")
   AbunMat <- AbunMat %>% dplyr::relocate(Ion)
@@ -96,7 +95,7 @@ calculate_proportions <- function(AbundanceMatrix,
     
     # Define range
     Range <- unlist(ComparisonRanges[ComparisonRanges$Name == Name, "Start"]):unlist(ComparisonRanges[ComparisonRanges$Name == Name, "Stop"])
-    Values <- AbunMat[AbunMat$Ion %in% Range, Name] %>% .[!is.na(.) & . != 1] 
+    Values <- AbunMat[AbunMat$Ion %in% Range, Name] %>% .[!is.na(.) & . != 0.5] 
     
     # Calculate the mean and confidence interval
     x <- Values
