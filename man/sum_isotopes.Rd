@@ -4,19 +4,27 @@
 \alias{sum_isotopes}
 \title{Sum isotopes within a matched_peaks object}
 \usage{
-sum_isotopes(IsoformaFragments, Charges = 1:100)
+sum_isotopes(IsoformaFragments)
 }
 \arguments{
-\item{IsoformaFragments}{A matched peaks isoforma object from fragments_per_ptm. Required.}
-
-\item{Charges}{The charge values to sum. Default is 1-100.}
+\item{IsoformaFragments}{(matched_peaks_isoforma) A matched peaks isoforma object from fragments_per_ptm. Required.}
+}
+\value{
+(summed_isotopes_isoforma) A data.table with 3 columns for the Ion,
+Summed Intensity, and the Proteoform.
 }
 \description{
 Sum isotopes within a matched_peaks object
 }
+\details{
+Intensities are divided by their respective charge states and summed together.
+}
 \examples{
 \dontrun{
+# Load fragment data
+MultipleFragments <- readRDS(system.file("extdata", "Fragments_1to1to1.RDS", package = "isoforma"))
 
-
+# Sum isotopes
+sum_isotopes(MultipleFragments)
 }
 }

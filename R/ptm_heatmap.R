@@ -1,12 +1,14 @@
 #' Generate a heatmap of monoisotopic fragments for each PTM 
 #' 
-#' @param IsoformaFragments A matched peaks isoforma object from fragments_per_ptm. Required. 
+#' @param IsoformaFragments (matched peaks isoforma) A matched peaks isoforma object from fragments_per_ptm. Required. 
 #'
 #' @examples
 #' \dontrun{
+#' # Load matched peaks object
+#' MatchPeaksIso <- readRDS(system.file("extdata", "Fragments_1to1to1.RDS", package = "isoforma"))
 #' 
-#' 
-#' 
+#' # Make plot
+#' ptm_heatmap(MatchPeaksIso)
 #' }
 #' @export    
 ptm_heatmap <- function(IsoformaFragments) {

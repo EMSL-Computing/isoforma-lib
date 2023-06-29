@@ -4,13 +4,33 @@
 \alias{calculate_proportions}
 \title{Generate the proportions of fragments from an abundance matrix}
 \usage{
-calculate_proportions(AbundanceMatrix, IncludePlot = TRUE, top = 8)
+calculate_proportions(AbundanceMatrix, IncludePlot = TRUE, Top = 8)
 }
 \arguments{
-\item{AbundanceMatrix}{An abundance matrix from abundance_matrix(). Required.}
+\item{AbundanceMatrix}{(abundance matrix isoforma) An abundance matrix from abundance_matrix(). Required.}
 
-\item{IncludePlot}{TRUE/FALSE to indicate whether a plot should also be returned. Default is TRUE.}
+\item{IncludePlot}{(logical) TRUE/FALSE to indicate whether a plot should also be returned. Default is TRUE.}
+
+\item{Top}{(integer) The top N proportions to return, ranked from higest to lowest. Default is 8.}
+}
+\value{
+(list) The first item is a data.table and the second is a plot
 }
 \description{
-Generate the proportions of fragments from an abundance matrix
+Returns a list where the first object is the calculated proportions,
+and the second is barplot with the top n calculated proportions and their
+respective error bars.
+}
+\examples{
+\dontrun{
+# Load summed isotopes 
+SumIso <- readRDS(system.file("extdata", "SummedIsotopes_1to1to1.RDS", package = "isoforma"))
+
+# Generate the matrix
+AbundanceMat <- abundance_matrix(SummedIsotopes = SumIso, IonGroup = "c")
+
+# Calculate Proportions
+calculate_proportions(AbundanceMat)
+}
+
 }

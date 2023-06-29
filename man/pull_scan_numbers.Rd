@@ -19,25 +19,28 @@ pull_scan_numbers(
 )
 }
 \arguments{
-\item{Sequence}{A valid amino acid sequence. Any non-traditional symbols are
+\item{Sequence}{(character) A valid amino acid sequence. Any non-traditional symbols are
 removed and "M." is ignored. Required.}
 
-\item{Modification}{An IsoFormA modifications annotation written as
+\item{Modification}{(character) An IsoForma modifications annotation written as
 "PTM,Residue(Positions)\link{Number of Modifications}". Required.}
 
-\item{ScanMetadata}{An object of the scan_metadata class from pspecterlib
+\item{ScanMetadata}{(pspecterlib scan metadata object) An object of the scan_metadata class from pspecterlib
 get_scan_metadata. Required.}
 
-\item{MassWindow}{A m/z window for acceptable precursor masses. Default is 5.}
+\item{MassWindow}{(numeric) A m/z window for acceptable precursor masses. Default is 5.}
 
-\item{MinMS1Matches}{Minimum number of MS1 peaks from the isotopic distribution
+\item{MinMS1Matches}{(numeric) Minimum number of MS1 peaks from the isotopic distribution
 of the full peptide sequence that fall within the MS2 window. Default is 3.}
 
-\item{ActivationMethod}{The method used by the MS instrument to dissociate fragments.
+\item{ActivationMethod}{(character) The method used by the MS instrument to dissociate fragments.
 Default is ETD.}
 
-\item{AsDataframe}{A boolean to indicate whether you would like the values used
+\item{AsDataframe}{(logical) A boolean to indicate whether you would like the values used
 to determine the ScanNumbers included or not. Default is FALSE.}
+}
+\value{
+A data.frame or list of MS2 scan numbers to sum
 }
 \description{
 Return a vector of scan numbers based on a Precursor Mass, mass tolerance, and

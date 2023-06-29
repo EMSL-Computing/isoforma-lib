@@ -7,15 +7,17 @@
 ptm_heatmap(IsoformaFragments)
 }
 \arguments{
-\item{IsoformaFragments}{A matched peaks isoforma object from fragments_per_ptm. Required.}
+\item{IsoformaFragments}{(matched peaks isoforma) A matched peaks isoforma object from fragments_per_ptm. Required.}
 }
 \description{
 Generate a heatmap of monoisotopic fragments for each PTM
 }
 \examples{
 \dontrun{
+# Load matched peaks object
+MatchPeaksIso <- readRDS(system.file("extdata", "Fragments_1to1to1.RDS", package = "isoforma"))
 
-
-
+# Make plot
+ptm_heatmap(MatchPeaksIso)
 }
 }

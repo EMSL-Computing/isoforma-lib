@@ -1,15 +1,22 @@
 #' Sum isotopes within a matched_peaks object
 #' 
-#' @param IsoformaFragments A matched peaks isoforma object from fragments_per_ptm. Required. 
-#' @param Charges The charge values to sum. Default is 1-100. 
+#' @details Intensities are divided by their respective charge states and summed together.
+#' 
+#' @param IsoformaFragments (matched_peaks_isoforma) A matched peaks isoforma object from fragments_per_ptm. Required. 
+#' 
+#' @returns (summed_isotopes_isoforma) A data.table with 3 columns for the Ion,
+#'     Summed Intensity, and the Proteoform. 
 #' 
 #' @examples
 #' \dontrun{
+#' # Load fragment data
+#' MultipleFragments <- readRDS(system.file("extdata", "Fragments_1to1to1.RDS", package = "isoforma"))
 #' 
-#' 
+#' # Sum isotopes
+#' sum_isotopes(MultipleFragments)
 #' }
 #' @export
-sum_isotopes <- function(IsoformaFragments, Charges = 1:100) {
+sum_isotopes <- function(IsoformaFragments) {
   
   ##################
   ## CHECK INPUTS ##
@@ -19,12 +26,6 @@ sum_isotopes <- function(IsoformaFragments, Charges = 1:100) {
   if (class(IsoformaFragments) != "matched_peaks_isoforma") {
     stop("object must be a matched_peaks_isoforma object from fragments_per_ptm.")
   }
-  
-  # Check that charges is a numeric
-  if (length(Charges) == 0 | !is.numeric(Charges)) {
-    stop("Charges must be numeric.")
-  }
-  Charges <- abs(floor(Charges))
   
   ##################
   ## SUM ISOTOPES ##
@@ -42,57 +43,29 @@ sum_isotopes <- function(IsoformaFragments, Charges = 1:100) {
       Fragments <- Fragments[is.na(Fragments$Ion) == FALSE,]
     }
     
-    # Break up into ions,  and sum intensities 
-    #SummedIntensities <- Fragments %>%
-    #  subset(Z %in% Charges) %>% 
-    #  dplyr::select(c(Ion, Z, `Intensity Experimental`, `PPM Error`, Isotope)) %>%
-    #  dplyr::mutate(Label = paste0(Ion, "_", Z, "_", Isotope)) %>%
-    #  dplyr::group_by(Label) %>%
-    #  dplyr::slice(which.min(abs(`PPM Error`))) %>% 
-    #  dplyr::select(-c(`PPM Error`, Isotope)) %>%
-    #  dplyr::ungroup() %>%
-    #  dplyr::mutate(Label = paste0(Ion, "_", Z)) %>%
-    #  dplyr::group_by(Label) %>%
-    #  tidyr::nest() %>%
-    #  dplyr::mutate(
-    #    `Summed Intensity` = purrr::map(data, function(x) {sum(x$`Intensity Experimental`)}) %>% unlist(),
-    #    `Peak Count` = purrr::map(data, function(x) {length(x$`Intensity Experimental`)}) %>% unlist()
-    #  ) %>%
-    #  dplyr::mutate(Ion = lapply(Label, function(x) {strsplit(x, "_") %>% unlist() %>% head(1)}) %>% unlist()) %>%
-    #  dplyr::ungroup() %>%
-    #  dplyr::select(-c(data, Label)) %>%
-    #  dplyr::group_by(Ion) %>%
-    #  tidyr::nest() %>%
-    #  dplyr::mutate(
-    #    `Summed Intensity` = purrr::map(data, function(x) {x[which.max(x$`Summed Intensity`), "Summed Intensity"] %>% unlist()}) %>% unlist(),
-    #    `Peak Count` = purrr::map(data, function(x) {x[which.max(x$`Summed Intensity`), "Peak Count"] %>% unlist()}) %>% unlist()
-    #  ) %>%
-    #  dplyr::select(-data) %>%
-    #  dplyr::mutate(
-    #    Proteoform = names(IsoformaFragments)[el]
-    #  )
-    
+    # Change class to apply dplyr functions
+    class(Fragments) <- c("data.frame", "data.table")
+    Fragments <- data.table::data.table(Fragments)
+
+    # Select IonType, Intensity, and Z
     SummedIntensities <- Fragments %>%
-      dplyr::group_by(Ion) %>%
-      tidyr::nest() %>%
+      dplyr::select(c(Ion, `Intensity Experimental`, Z)) %>%
       dplyr::mutate(
-        `Summed Intensity` = purrr::map(data, function(x) {sum(x$`Intensity Experimental`)}) %>% unlist(),
-        `Peak Count` = NA,
-        Proteoform = names(IsoformaFragments)[el]
+        `Intensity Experimental` = `Intensity Experimental` / Z
       ) %>%
-      dplyr::select(-data)
-    
+      dplyr::group_by(Ion) %>%
+      dplyr::summarise(
+        `Summed Intensity` = sum(`Intensity Experimental`),
+        Proteoform = names(IsoformaFragments)[el]
+      )
     
     # Return Summed Isotopes
     return(SummedIntensities)
     
   })) %>% data.table::data.table()
   
-  # Make the object
-  SummedIsotopes <- list("SummedIsotopes" = SummedIsotopes)
-  
   # Add class and attribute
-  class(SummedIsotopes) <- "summed_isotopes_isoforma"
+  class(SummedIsotopes) <- c(class(SummedIsotopes), "summed_isotopes_isoforma")
   
   # Return fragments
   return(SummedIsotopes)

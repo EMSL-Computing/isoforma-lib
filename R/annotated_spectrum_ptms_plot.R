@@ -1,16 +1,24 @@
 #' Overlays multiple PTM fragment identifications on one spectra
 #'
-#' @param SummedSpectra A data.table with a "M/Z" and "Intensity" column, preferably
+#' @param SummedSpectra (peak data) A data.table with a "M/Z" and "Intensity" column, preferably
 #'     calculated with the function sum_spectra. Required.
-#' @param IsoformaFragments A matched peaks isoforma object from fragments_per_ptm. Required. 
+#' @param IsoformaFragments (matched peaks isoforma) A matched peaks isoforma object from fragments_per_ptm. Required. 
+#' 
+#' @returns (plotly graphic) An overlay of each identified peak over a spectrum
 #' 
 #' @examples 
 #' \dontrun{
+#' # Load the summed spectra
+#' SumPeaks <- readRDS(system.file("extdata", "SummedPeaks_1to1to1.RDS", package = "isoforma"))
 #' 
+#' # Load fragment data
+#' Fragments <- readRDS(system.file("extdata", "Fragments_1to1to1.RDS", package = "isoforma"))
 #' 
+#' annotated_spectrum_ptms_plot(SummedSpectra = SumPeaks, IsoformaFragments = Fragments)
 #' }
 #' @export
-annotated_spectrum_ptms_plot <- function(SummedSpectra, IsoformaFragments) {
+annotated_spectrum_ptms_plot <- function(SummedSpectra, 
+                                         IsoformaFragments) {
   
   ##################
   ## CHECK INPUTS ##
@@ -33,7 +41,7 @@ annotated_spectrum_ptms_plot <- function(SummedSpectra, IsoformaFragments) {
   class(SummedSpectra) <- "data.frame"
   
   # Pull out Peaks
-  Peaks <- SummedSpectra
+  Peaks <- SummedSpectra %>% dplyr::select(-Abundance)
   
   # Generate zero center
   Peaks0 <- data.table::data.table("M/Z" = c(Peaks$`M/Z` - 1e-12, Peaks$`M/Z` + 1e-12),
