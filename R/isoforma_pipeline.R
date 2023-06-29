@@ -30,10 +30,6 @@
 #' @examples
 #' \dontrun{
 #' 
-#' ####################################
-#' ## EXAMPLE 1: SKIP PEAK SELECTION ##
-#' ####################################
-#' 
 #' # Load 3 peaks to sum 
 #' PeakDataList <- list(
 #'  readRDS(system.file("extdata", "PeakData_1to1to1_1.RDS", package = "isoforma")),
@@ -62,10 +58,6 @@
 #'     IsotopeAlgorithm = "Rdisop", # If this step crashes, switch to "isopat" 
 #'     Messages = TRUE
 #' )
-#'
-#' #########################################
-#' ## EXAMPLE 2: AUTOMATED PEAK SELECTION ##
-#' #########################################
 #' 
 #' }
 #' 

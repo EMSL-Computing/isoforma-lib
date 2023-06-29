@@ -39,14 +39,6 @@ or provide a list of pspecterlib::peak_data objects to sum.
 }
 \examples{
 \dontrun{
-#################################################
-## EXAMPLE 1: PULL FROM A SCAN METADATA OBJECT ##
-#################################################
-            
-            
-#######################################
-## EXAMPLE 2: SUM PEAK DATA TOGETHER ##               
-#######################################
 
 # Load 3 peaks to sum 
 PeakDataList <- list(
