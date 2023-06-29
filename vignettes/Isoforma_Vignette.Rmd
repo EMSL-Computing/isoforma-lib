@@ -46,13 +46,7 @@ Steps 3-6 can be run all together with our main pipeline function.
 ## 1. Select scan numbers
 
 To select scan numbers, either use the pull_scan_numbers() function to automatically
-detect and suggest MS2 peaks: 
-
-```{r pull_scan_numbers}
-# ToDo
-```
-
-Or select them yourself and make pspecter peak_data objects out of them. See 
+detect and suggest MS2 peaks, or select them yourself and make pspecter peak_data objects out of them. See 
 ?pspecterlib::make_peak_data or ?pspecterlib::get_peak_data.
 
 ```{r Make A Peak Data List}
