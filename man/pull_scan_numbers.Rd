@@ -49,7 +49,7 @@ isolation window filtering
 \examples{
 \dontrun{
 
-# Generate the ScanMetadata object 
+# Generate the ScanMetadata object
 ScanMetadata <- pspecterlib::get_scan_metadata(
     MSPath = "/Users/degn400/Desktop/IsoForma_Test/Sorghum-Histone0622162L11.mzML"
 )
@@ -58,7 +58,6 @@ ScanMetadata <- pspecterlib::get_scan_metadata(
 pull_scan_numbers(Sequence = "M.SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRGVLKIFLENVIRDAVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG",
                   Modification = "Acetyl,X(1*,5,8,12,16,20)[2]",
                   ScanMetdata = ScanMetadata,
-                  PrecursorMass = 11355.38,
                   RTStart = 30,
                   RTEnd = 60)
 
