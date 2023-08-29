@@ -57,7 +57,7 @@ Glossary <- data.table::fread(
 #' Return a vector of scan numbers based on a Precursor Mass, mass tolerance, and
 #'    isolation window filtering
 #'
-#' @param Sequence (character) A valid amino acid sequence. Any non-traditional symbols are
+#' @param Sequence (character) A modified valid amino acid sequence as output by . Any non-traditional symbols are
 #'     removed and "M." is ignored. Required.
 #' @param Modification (character) An IsoForma modifications annotation written as
 #'     "PTM,Residue(Positions)[Number of Modifications]". Required.
@@ -91,8 +91,7 @@ Glossary <- data.table::fread(
 #'
 #' }
 #' @export
-pull_scan_numbers <- function(Sequence,
-                              Modification,
+pull_scan_numbers <- function(Sequences,
                               ScanMetadata,
                               RTStart,
                               RTEnd,
@@ -107,8 +106,13 @@ pull_scan_numbers <- function(Sequence,
   ## CHECK INPUTS ##
   ##################
 
+  # Check that sequences is a vector string first
+  if (!is.vector(Sequences)) {
+    stop("Sequence must be a vecotr output from pspecterlib::multiple_modifications().")
+  }
+
   # Check that sequence is a character string first
-  if (!is.character(Sequence)) {
+  if (!is.character(Sequences)) {
     stop("Sequence must be a string.")
   }
 
@@ -122,16 +126,16 @@ pull_scan_numbers <- function(Sequence,
     stop("Sequence is not an acceptable peptide/protein sequence. See ?pspecterlib::is_sequence for more details.")
   }
 
-  # Check that Modification is a string
-  if (!is.character(Modification)) {
-    stop("Modification must be a string.")
-  }
+  # # Check that Modification is a string
+  # if (!is.character(Modification)) {
+  #   stop("Modification must be a string.")
+  # }
 
-  # Check that the modification is in the glossary
-  PTM <- Modification %>% strsplit(",") %>% unlist() %>% head(1)
-  if (!(PTM %in% Glossary$Modification)) {
-    stop(paste("The modification", PTM, "is not in the backend glossary."))
-  }
+  # # Check that the modification is in the glossary
+  # PTM <- Modification %>% strsplit(",") %>% unlist() %>% head(1)
+  # if (!(PTM %in% Glossary$Modification)) {
+  #   stop(paste("The modification", PTM, "is not in the backend glossary."))
+  # }
 
   # Check that ScanMetadata is of the appropriate class
   if ("scan_metadata" %in% class(ScanMetadata) == FALSE) {
@@ -171,22 +175,28 @@ pull_scan_numbers <- function(Sequence,
 
   }
 
-  # Get modifications and count
+  #Grabbing a modified sequence
+  Sequence <- Sequences[length(Sequences)]
+
+  #Grabbing the modifications
+  Mods <- gsub("[\\[\\]]", "", regmatches(Sequence, gregexpr("\\[.*?\\]", Sequence))[[1]]) %>% gsub("\\[", "", .) %>% gsub("\\]", "", .)
+
+  #Grabbing the amino acid sequence
+  Blank_seq <- gsub("\\[.*?\\]","", Sequence)
+
+  #Getting the Molecular Formula of ever Modification
   TotalForm <- NULL
-  for (x in unlist(strsplit(Modification, ";"))) {
-    Mod <- strsplit(x, ",") %>% unlist() %>% head(1)
-    Count <- strsplit(x, "[", fixed = T) %>% unlist() %>%
-        tail(1) %>% gsub(pattern = "]", replacement = "", fixed = T) %>% as.numeric()
-    if (is.null(TotalForm)) {TotalForm <- get_mol_form(Mod, Count)} else {
-      TotalForm <- pspecterlib::add_molforms(TotalForm, get_mol_form(Mod, Count), CapNegatives = FALSE)
+  for (Mod in Mods){
+    if (is.null(TotalForm)) {TotalForm <- get_mol_form(Mod, 1)} else {
+      TotalForm <- pspecterlib::add_molforms(TotalForm, get_mol_form(Mod, 1), CapNegatives = FALSE)
     }
   }
 
   # Now get the total molecular formula
-  MolForm <- pspecterlib::add_molforms(pspecterlib::get_aa_molform(Sequence), TotalForm)
+  MolForm <- pspecterlib::add_molforms(pspecterlib::get_aa_molform(Blank_seq), TotalForm)
 
   # Get full list of isotoping information for the molecular formula
-  IsotopingData <- pspecterlib::calculate_iso_profile(MolForm, min_abundance = MinAbundance, 0.001)
+  IsotopingData <- pspecterlib::calculate_iso_profile(MolForm, algorithm = "Rdisop", min_abundance = 1, 0.001)
 
   # Get the exact mass
   exactmass <- pspecterlib::get_mw(MolForm)
