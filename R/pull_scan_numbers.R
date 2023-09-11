@@ -57,10 +57,8 @@ Glossary <- data.table::fread(
 #' Return a vector of scan numbers based on a Precursor Mass, mass tolerance, and
 #'    isolation window filtering
 #'
-#' @param Sequence (character) A modified valid amino acid sequence as output by . Any non-traditional symbols are
+#' @param Sequence (character) A vector of valid amino acid sequences as output by pspecterlib::multiple_modification. Any non-traditional symbols are
 #'     removed and "M." is ignored. Required.
-#' @param Modification (character) An IsoForma modifications annotation written as
-#'     "PTM,Residue(Positions)[Number of Modifications]". Required.
 #' @param ScanMetadata (pspecterlib scan metadata object) An object of the scan_metadata class from pspecterlib
 #'     get_scan_metadata. Required.
 #' @param MassWindow (numeric) A m/z window for acceptable precursor masses. Default is 5.
@@ -69,8 +67,6 @@ Glossary <- data.table::fread(
 #' @param ppmMzTolerance (numeric) Precursor ppm m/z tolerance.  Default is 5.
 #' @param ActivationMethod (character) The method used by the MS instrument to dissociate fragments.
 #'     Default is ETD.
-#' @param AsDataframe (logical) A boolean to indicate whether you would like the values used
-#'     to determine the ScanNumbers included or not. Default is FALSE.
 #'
 #' @returns A data.frame or list of MS2 scan numbers to sum
 #'
@@ -82,9 +78,15 @@ Glossary <- data.table::fread(
 #'     MSPath = "/Users/degn400/Desktop/IsoForma_Test/Sorghum-Histone0622162L11.mzML"
 #' )
 #'
+#' #Define Sequence and Modifications
+#' Sequence = "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
+#' Modification = "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
+#'
+#' # Getting output of pspecterlib::multiple_modifications, required for this function.
+#' Sequences = pspecterlib::multiple_modifications(Sequence, Modification, ReturnUnmodified = TRUE)
+#'
 #' # Run function
-#' pull_scan_numbers(Sequence = "M.SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRGVLKIFLENVIRDAVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG",
-#'                   Modification = "Acetyl,X(1*,5,8,12,16,20)[2]",
+#' pull_scan_numbers(Sequences = Sequences,
 #'                   ScanMetdata = ScanMetadata,
 #'                   RTStart = 30,
 #'                   RTEnd = 60)
@@ -98,13 +100,14 @@ pull_scan_numbers <- function(Sequences,
                               MassWindow = 10,
                               MinMS1Matches = 3,
                               ppmMzTolerance = 5,
+                              IsotopeAlgorithm = "isopat",
                               ActivationMethod = "ETD",
-                              AsDataframe = FALSE,
                               MinAbundance = 5) {
 
   ##################
   ## CHECK INPUTS ##
   ##################
+
 
   # Check that sequences is a vector string first
   if (!is.vector(Sequences)) {
@@ -196,7 +199,7 @@ pull_scan_numbers <- function(Sequences,
   MolForm <- pspecterlib::add_molforms(pspecterlib::get_aa_molform(Blank_seq), TotalForm)
 
   # Get full list of isotoping information for the molecular formula
-  IsotopingData <- pspecterlib::calculate_iso_profile(MolForm, algorithm = "Rdisop", min_abundance = 1, 0.001)
+  IsotopingData <- pspecterlib::calculate_iso_profile(MolForm, algorithm = IsotopeAlgorithm, min_abundance = 1, 0.001)
 
   # Get the exact mass
   exactmass <- pspecterlib::get_mw(MolForm)
@@ -286,10 +289,6 @@ pull_scan_numbers <- function(Sequences,
   ## RETURN RESULTS ##
   ####################
 
-  if (AsDataframe) {
-
-    return(list(MS2ScanNumbers, exactmass))
-
-  } else {return( MS2ScanNumbers[MS2ScanNumbers$Use, "Scan Number"])}
+  return( MS2ScanNumbers[MS2ScanNumbers$Use, "Scan Number"])
 
 }

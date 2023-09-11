@@ -61,7 +61,7 @@ fragments_per_ptm <- function(Sequences,
                               CorrelationScore = 0.7,
                               PPMThreshold = 10,
                               IsotopeAlgorithm = "Rdisop",
-                              MinimumAbundance = 0.01
+                              MinimumAbundance = 0.01,
                               Messages = FALSE) {
 
   ##################
