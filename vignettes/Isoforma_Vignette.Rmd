@@ -96,7 +96,7 @@ MultipleMods <- pspecterlib::multiple_modifications(
 AllFragments <- fragments_per_ptm(
    Sequences = MultipleMods,
    SummedSpectra = PeaksSum,
-   PrecursorCharge = 11, 
+   MaxFragmentCharge = 11, 
    ActivationMethod = "ETD", 
    CorrelationScore = 0, # Here, we don't care about correlation score filtering 
    Messages = FALSE

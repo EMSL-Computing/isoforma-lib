@@ -6,7 +6,7 @@
 isolation window filtering}
 \usage{
 pull_scan_numbers(
-  Sequences,
+  Sequence,
   ScanMetadata,
   RTStart,
   RTEnd,
@@ -19,6 +19,9 @@ pull_scan_numbers(
 )
 }
 \arguments{
+\item{Sequence}{(character) A valid amino acid sequence with modifications as output by pspecterlib::multiple_modification. Any non-traditional symbols are
+removed and "M." is ignored. Required.}
+
 \item{ScanMetadata}{(pspecterlib scan metadata object) An object of the scan_metadata class from pspecterlib
 get_scan_metadata. Required.}
 
@@ -31,9 +34,6 @@ of the full peptide sequence that fall within the MS2 window. Default is 3.}
 
 \item{ActivationMethod}{(character) The method used by the MS instrument to dissociate fragments.
 Default is ETD.}
-
-\item{Sequence}{(character) A vector of valid amino acid sequences as output by pspecterlib::multiple_modification. Any non-traditional symbols are
-removed and "M." is ignored. Required.}
 }
 \value{
 A data.frame or list of MS2 scan numbers to sum
@@ -57,9 +57,11 @@ Modification = "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
 # Getting output of pspecterlib::multiple_modifications, required for this function.
 Sequences = pspecterlib::multiple_modifications(Sequence, Modification, ReturnUnmodified = TRUE)
 
+Sequence = Sequences[length(Sequences)]
+
 # Run function
-pull_scan_numbers(Sequences = Sequences,
-                  ScanMetdata = ScanMetadata,
+pull_scan_numbers(Sequence = Sequence,
+                  ScanMetadata = ScanMetadata,
                   RTStart = 30,
                   RTEnd = 60)
 
