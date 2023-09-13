@@ -57,7 +57,7 @@ Glossary <- data.table::fread(
 #' Return a vector of scan numbers based on a Precursor Mass, mass tolerance, and
 #'    isolation window filtering
 #'
-#' @param Sequence (character) A vector of valid amino acid sequences as output by pspecterlib::multiple_modification. Any non-traditional symbols are
+#' @param Sequence (character) A valid amino acid sequence with modifications as output by pspecterlib::multiple_modification. Any non-traditional symbols are
 #'     removed and "M." is ignored. Required.
 #' @param ScanMetadata (pspecterlib scan metadata object) An object of the scan_metadata class from pspecterlib
 #'     get_scan_metadata. Required.
@@ -85,15 +85,17 @@ Glossary <- data.table::fread(
 #' # Getting output of pspecterlib::multiple_modifications, required for this function.
 #' Sequences = pspecterlib::multiple_modifications(Sequence, Modification, ReturnUnmodified = TRUE)
 #'
+#' Sequence = Sequences[length(Sequences)]
+#'
 #' # Run function
-#' pull_scan_numbers(Sequences = Sequences,
-#'                   ScanMetdata = ScanMetadata,
+#' pull_scan_numbers(Sequence = Sequence,
+#'                   ScanMetadata = ScanMetadata,
 #'                   RTStart = 30,
 #'                   RTEnd = 60)
 #'
 #' }
 #' @export
-pull_scan_numbers <- function(Sequences,
+pull_scan_numbers <- function(Sequence,
                               ScanMetadata,
                               RTStart,
                               RTEnd,
@@ -108,14 +110,8 @@ pull_scan_numbers <- function(Sequences,
   ## CHECK INPUTS ##
   ##################
 
-
-  # Check that sequences is a vector string first
-  if (!is.vector(Sequences)) {
-    stop("Sequence must be a vecotr output from pspecterlib::multiple_modifications().")
-  }
-
   # Check that sequence is a character string first
-  if (!is.character(Sequences)) {
+  if (!is.character(Sequence)) {
     stop("Sequence must be a string.")
   }
 
@@ -124,21 +120,27 @@ pull_scan_numbers <- function(Sequences,
     gsub(pattern = "M.", replacement = "", fixed = TRUE) %>%
     gsub(pattern = ".", replacement = "", fixed = TRUE)
 
+  #Grabbing the amino acid sequence
+  Blank_seq <- gsub("\\[.*?\\]","", Sequence)
+
   # Use pspecterlib's sequence check
-  if (!pspecterlib::is_sequence(Sequence)) {
-    stop("Sequence is not an acceptable peptide/protein sequence. See ?pspecterlib::is_sequence for more details.")
+  if (!pspecterlib::is_sequence(Blank_seq)) {
+      stop("Sequence is not an acceptable peptide/protein sequence. See ?pspecterlib::is_sequence for more details.")
   }
 
-  # # Check that Modification is a string
-  # if (!is.character(Modification)) {
-  #   stop("Modification must be a string.")
-  # }
+  #Grabbing the modifications
+  Mods <- gsub("[\\[\\]]", "", regmatches(Sequence, gregexpr("\\[.*?\\]", Sequence))[[1]]) %>% gsub("\\[", "", .) %>% gsub("\\]", "", .)
 
-  # # Check that the modification is in the glossary
-  # PTM <- Modification %>% strsplit(",") %>% unlist() %>% head(1)
-  # if (!(PTM %in% Glossary$Modification)) {
-  #   stop(paste("The modification", PTM, "is not in the backend glossary."))
-  # }
+  # Check that Modification is a string
+  if (!is.character(Mods)) {
+    stop("Modification must be a string.")
+  }
+
+  # Check that the modification is in the glossary
+  PTM <- Modification %>% strsplit(",") %>% unlist() %>% head(1)
+  if (!(PTM %in% Glossary$Modification)) {
+    stop(paste("The modification", PTM, "is not in the backend glossary."))
+  }
 
   # Check that ScanMetadata is of the appropriate class
   if ("scan_metadata" %in% class(ScanMetadata) == FALSE) {
@@ -177,15 +179,6 @@ pull_scan_numbers <- function(Sequences,
     return(MolForm)
 
   }
-
-  #Grabbing a modified sequence
-  Sequence <- Sequences[length(Sequences)]
-
-  #Grabbing the modifications
-  Mods <- gsub("[\\[\\]]", "", regmatches(Sequence, gregexpr("\\[.*?\\]", Sequence))[[1]]) %>% gsub("\\[", "", .) %>% gsub("\\]", "", .)
-
-  #Grabbing the amino acid sequence
-  Blank_seq <- gsub("\\[.*?\\]","", Sequence)
 
   #Getting the Molecular Formula of ever Modification
   TotalForm <- NULL
