@@ -137,10 +137,10 @@ pull_scan_numbers <- function(Sequence,
   }
 
   # Check that the modification is in the glossary
-  PTM <- Modification %>% strsplit(",") %>% unlist() %>% head(1)
-  if (!(PTM %in% Glossary$Modification)) {
-    stop(paste("The modification", PTM, "is not in the backend glossary."))
-  }
+  for(Mod in Mods){
+    if (!(Mod %in% Glossary$Modification)) {
+      stop(paste("The modification", PTM, "is not in the backend glossary."))
+  }}
 
   # Check that ScanMetadata is of the appropriate class
   if ("scan_metadata" %in% class(ScanMetadata) == FALSE) {

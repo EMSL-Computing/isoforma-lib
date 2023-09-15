@@ -37,7 +37,6 @@ sum_ms2_spectra <- function(ScanMetadata = NULL,
   ##################
   ## CHECK INPUTS ##
   ##################
-  #browser()
 
   # Make sure all 3 parameters are not NULL
   if (is.null(ScanMetadata) | is.null(ScanNumbers)) {
