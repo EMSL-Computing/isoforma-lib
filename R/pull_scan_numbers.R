@@ -185,7 +185,7 @@ pull_scan_numbers <- function(Sequence,
   MolForm <- pspecterlib::add_molforms(pspecterlib::get_aa_molform(Sequence), TotalForm)
   
   # Get full list of isotoping information for the molecular formula 
-  IsotopingData <- pspecterlib::calculate_iso_profile(MolForm, min_abundance = MinAbundance, 0.001)
+  IsotopingData <- pspecterlib::calculate_iso_profile(MolForm, min_abundance = MinAbundance)
   
   # Get the exact mass
   exactmass <- pspecterlib::get_mw(MolForm)

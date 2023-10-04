@@ -113,7 +113,7 @@ fragments_per_ptm <- function(Sequences,
     # Iterate through modifications data.table
     Name <- lapply(1:nrow(nameDF), function (row) {
       Pos <- nameDF$`N Position`[row] %>% unlist()
-      paste0(nameDF$Name[row], "@", substr(seq, Pos, Pos), nameDF$`N Position`[row])
+      paste0(nameDF$Name[row], "@", substr(attributes(nameDF)$pspecter$cleaned_sequence, Pos, Pos), nameDF$`N Position`[row])
     }) %>% paste(collapse = " & ")
     
     # Return the name

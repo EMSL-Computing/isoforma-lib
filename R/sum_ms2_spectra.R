@@ -92,8 +92,12 @@ sum_ms2_spectra <- function(ScanMetadata = NULL,
     
     # Pull all the spectra - skipping those not in the range
     Spectra <- do.call(dplyr::bind_rows, lapply(ScanNumbers, function(scan_number) {
-      tryCatch({pspecterlib::get_peak_data(ScanMetadata, scan_number) }, 
-               error = function(e) {message(e); return(NULL)})
+      tryCatch({
+        spec <- pspecterlib::get_peak_data(ScanMetadata, scan_number)
+        class(spec) <- c("data.table", "data.frame")
+        return(spec)
+      }, 
+        error = function(e) {message(e); return(NULL)})
     })) 
     
     # Stop if no spectra
@@ -133,14 +137,14 @@ sum_ms2_spectra <- function(ScanMetadata = NULL,
   }
   
   # Iterate through MS1_Scans, pull peak data, and round MZ values
-  Spectra_Rounded <- Spectra %>%
-    dplyr::mutate(`M/Z` = ppm_round(`M/Z`)) %>%
-    dplyr::group_by(`M/Z`) %>%
-    dplyr::summarise(
-      Intensity = sum(Intensity)
-    ) %>%
-    dplyr::mutate(ScaleAbundance = Intensity / max(Intensity) * 100) %>%
-    dplyr::filter(ScaleAbundance > MinimumAbundance) 
+  Spectra_Rounded <- Spectra #%>%
+    #dplyr::mutate(`M/Z` = ppm_round(`M/Z`)) %>%
+    #dplyr::group_by(`M/Z`) %>%
+    #dplyr::summarise(
+    #  Intensity = sum(Intensity)
+    #) %>%
+    #dplyr::mutate(ScaleAbundance = Intensity / max(Intensity) * 100) %>%
+    #dplyr::filter(ScaleAbundance > MinimumAbundance) 
 
   # Make Final Spectra
   FinalSpectra <- pspecterlib::make_peak_data(

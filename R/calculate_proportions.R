@@ -54,6 +54,14 @@ calculate_proportions <- function(AbundanceMatrix,
   class(AbundanceMatrix) <- c("data.frame", "data.table")
   AbundanceMatrix <- data.table::data.table(AbundanceMatrix)
   
+  
+  browser()
+  
+  # 1. Iterate through each column
+  lapply(2:(ncol(AbundanceMatrix) - 1), function(col) {
+    AbundanceMatrix[,col] / (AbundanceMatrix[,col] + AbundanceMatrix[,(col+1)])
+  })
+  
   # 1. Order columns by increasing position
   SummedPosition <- data.table::data.table(
     "Name" = colnames(AbundanceMatrix)[colnames(AbundanceMatrix) != "Ion"]

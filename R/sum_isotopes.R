@@ -64,6 +64,9 @@ sum_isotopes <- function(IsoformaFragments) {
     
   })) %>% data.table::data.table()
   
+  # Make proteoform a factor
+  SummedIsotopes$Proteoform <- factor(SummedIsotopes$Proteoform, levels = names(IsoformaFragments))
+  
   # Add class and attribute
   class(SummedIsotopes) <- c(class(SummedIsotopes), "summed_isotopes_isoforma")
   
