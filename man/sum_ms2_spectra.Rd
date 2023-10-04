@@ -40,7 +40,7 @@ or provide a list of pspecterlib::peak_data objects to sum.
 \examples{
 \dontrun{
 
-# Load 3 peaks to sum 
+# Load 3 peaks to sum
 PeakDataList <- list(
   readRDS(system.file("extdata", "PeakData_1to1to1_1.RDS", package = "isoforma")),
   readRDS(system.file("extdata", "PeakData_1to1to1_2.RDS", package = "isoforma")),

@@ -54,59 +54,17 @@ calculate_proportions <- function(AbundanceMatrix,
   class(AbundanceMatrix) <- c("data.frame", "data.table")
   AbundanceMatrix <- data.table::data.table(AbundanceMatrix)
   
-  
-  browser()
-  
-  # 1. Iterate through each column
-  lapply(2:(ncol(AbundanceMatrix) - 1), function(col) {
-    AbundanceMatrix[,col] / (AbundanceMatrix[,col] + AbundanceMatrix[,(col+1)])
+  # 1. Iterate through each column and calculate the proportions, removing all 0.5 and na
+  Prop_Early <- lapply(2:(ncol(AbundanceMatrix) - 1), function(col) {
+    Props <- AbundanceMatrix[,col] / (AbundanceMatrix[,col] + AbundanceMatrix[,(col+1)])
+    return(Props[!is.na(Props) & Props != 0.5])
   })
   
-  # 1. Order columns by increasing position
-  SummedPosition <- data.table::data.table(
-    "Name" = colnames(AbundanceMatrix)[colnames(AbundanceMatrix) != "Ion"]
-  ) %>%
-    dplyr::mutate(
-      Positions = lapply(Name, function(theName) {
-        strsplit(theName, "@| & ") %>% 
-          unlist() %>% 
-          .[c(FALSE, TRUE)] %>% 
-          gsub(pattern = "[[:alpha:]]", replacement = "") %>% 
-          as.numeric()
-      }), 
-      MinPosition = lapply(Positions, function(x) {min(x)}) %>% unlist(),
-      MaxPosition = lapply(Positions, function(x) {max(x)}) %>% unlist(),
-      PositionSum = lapply(Positions, function(x) {sum(x)}) %>% unlist()
-    ) %>%
-    dplyr::arrange(MinPosition, MaxPosition)
-  theOrder <- c("Ion", unlist(SummedPosition$Name))
-  AbundanceMatrix <- AbundanceMatrix %>% dplyr::select(theOrder)
-  
-  # 2. Determine comparison ranges 
-  ComparisonRanges <- data.table::data.table(
-    Name = SummedPosition$Name, 
-    Start = SummedPosition$MinPosition,
-    Stop = c(SummedPosition$MaxPosition[2:nrow(SummedPosition)]-1, 
-             max(AbundanceMatrix$Ion %>% gsub(pattern = "[[:alpha:]]", replacement = "") %>% as.numeric()))
-  )
-  
-  # 3. Divide each intensity by the last intensity in the row
-  AbunMat <- AbundanceMatrix[,2:ncol(AbundanceMatrix)] 
-  End <- ncol(AbunMat)
-  AbunMat <- as.matrix(AbunMat) / (AbunMat + AbunMat[,End])
-  AbunMat <- data.table::data.table(AbunMat)
-  AbunMat$Ion <- AbundanceMatrix$Ion %>% gsub(pattern = "[[:alpha:]]", replacement = "")
-  AbunMat <- AbunMat %>% dplyr::relocate(Ion)
-  
-  # 4. Calculate means and confidence interval using a negative binomial distribution
-  Means <- do.call(dplyr::bind_rows, lapply(ComparisonRanges$Name[1:(ncol(ComparisonRanges)-1)], function(Name) {
+  # 2. Calculate means and confidence interval using a negative binomial distribution
+  Means <- do.call(dplyr::bind_rows, lapply(Prop_Early, function(x) {
     
-    # Define range
-    Range <- unlist(ComparisonRanges[ComparisonRanges$Name == Name, "Start"]):unlist(ComparisonRanges[ComparisonRanges$Name == Name, "Stop"])
-    Values <- AbunMat[AbunMat$Ion %in% Range, Name] %>% .[!is.na(.) & . != 0.5] 
+    Values <- x %>% unlist()
     
-    # Calculate the mean and confidence interval
-    x <- Values
     nloglikbeta <- function(mu, sig) {
       alpha = mu^2*(1-mu)/sig^2-mu
       beta = alpha*(1/mu-1)
@@ -116,22 +74,25 @@ calculate_proportions <- function(AbundanceMatrix,
     theConfint <- stats4::confint(mle_fit)
     
     return(
-      c(Name = Name, 
-        Pre = mle_fit@coef[1][[1]] %>% round(8),
+      c(Pre = mle_fit@coef[1][[1]] %>% round(8),
         LowerCI = theConfint[1] %>% round(8),
         UpperCI = theConfint[3] %>% round(8)
       )
     )
     
-  }))
-  Means <- dplyr::bind_rows(Means, c(
-    Name = ComparisonRanges$Name[nrow(ComparisonRanges)], 
+  })) %>%
+    dplyr::mutate(Name = colnames(AbundanceMatrix)[2:(ncol(AbundanceMatrix) - 1)]) %>%
+    dplyr::relocate(Name)
+  
+  
+  Means <- dplyr::bind_rows(Means, data.frame(
+    Name = colnames(AbundanceMatrix)[ncol(AbundanceMatrix)], 
     Pre = 1, 
     LowerCI = 1 - as.numeric(Means$UpperCI[nrow(Means)]) + as.numeric(Means$Pre[nrow(Means)]),
     UpperCI = 1 - as.numeric(Means$LowerCI[nrow(Means)]) + as.numeric(Means$Pre[nrow(Means)])
   ))
 
-  # 5. Ensure each value is higher than the next
+  # 3. Ensure each value is higher than the next
   Pre <- Means
   Pre$Pre <- as.numeric(Pre$Pre)
   Pre$LowerCI <- as.numeric(Pre$LowerCI)
@@ -153,7 +114,7 @@ calculate_proportions <- function(AbundanceMatrix,
     return(NULL)
   }
   
-  # 6. Finally, calculate the real proportion
+  # 4. Finally, calculate the real proportion
   if (nrow(PreTest) > 1) {
     PreTest <- PreTest %>% 
       dplyr::mutate(
@@ -180,8 +141,8 @@ calculate_proportions <- function(AbundanceMatrix,
     dplyr::select(Name, Proportion, TrueLowerCI, TrueUpperCI) %>%
     dplyr::rename(LowerCI = TrueLowerCI, UpperCI = TrueUpperCI)
   
-  # 7. Order and rename
-  Proportions$Name <- factor(Proportions$Name, levels = ComparisonRanges$Name)
+  # 5. Order and rename
+  Proportions$Name <- factor(Proportions$Name, levels = colnames(AbundanceMatrix)[2:ncol(AbundanceMatrix)])
   Proportions <- Proportions %>% dplyr::arrange(Name)
   Proportions <- Proportions %>% dplyr::rename(Modification = Name)
   

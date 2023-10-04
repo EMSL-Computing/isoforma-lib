@@ -7,23 +7,20 @@ isolation window filtering}
 \usage{
 pull_scan_numbers(
   Sequence,
-  Modification,
   ScanMetadata,
   RTStart,
   RTEnd,
   MassWindow = 10,
   MinMS1Matches = 3,
+  ppmMzTolerance = 5,
+  IsotopeAlgorithm = "isopat",
   ActivationMethod = "ETD",
-  AsDataframe = FALSE,
   MinAbundance = 5
 )
 }
 \arguments{
-\item{Sequence}{(character) A valid amino acid sequence. Any non-traditional symbols are
+\item{Sequence}{(character) A valid amino acid sequence with modifications as output by pspecterlib::multiple_modification. Any non-traditional symbols are
 removed and "M." is ignored. Required.}
-
-\item{Modification}{(character) An IsoForma modifications annotation written as
-"PTM,Residue(Positions)\link{Number of Modifications}". Required.}
 
 \item{ScanMetadata}{(pspecterlib scan metadata object) An object of the scan_metadata class from pspecterlib
 get_scan_metadata. Required.}
@@ -33,11 +30,10 @@ get_scan_metadata. Required.}
 \item{MinMS1Matches}{(numeric) Minimum number of MS1 peaks from the isotopic distribution
 of the full peptide sequence that fall within the MS2 window. Default is 3.}
 
+\item{ppmMzTolerance}{(numeric) Precursor ppm m/z tolerance.  Default is 5.}
+
 \item{ActivationMethod}{(character) The method used by the MS instrument to dissociate fragments.
 Default is ETD.}
-
-\item{AsDataframe}{(logical) A boolean to indicate whether you would like the values used
-to determine the ScanNumbers included or not. Default is FALSE.}
 }
 \value{
 A data.frame or list of MS2 scan numbers to sum
@@ -49,16 +45,23 @@ isolation window filtering
 \examples{
 \dontrun{
 
-# Generate the ScanMetadata object 
+# Generate the ScanMetadata object
 ScanMetadata <- pspecterlib::get_scan_metadata(
     MSPath = "/Users/degn400/Desktop/IsoForma_Test/Sorghum-Histone0622162L11.mzML"
 )
 
+#Define Sequence and Modifications
+Sequence = "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
+Modification = "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
+
+# Getting output of pspecterlib::multiple_modifications, required for this function.
+Sequences = pspecterlib::multiple_modifications(Sequence, Modification, ReturnUnmodified = TRUE)
+
+Sequence = Sequences[length(Sequences)]
+
 # Run function
-pull_scan_numbers(Sequence = "M.SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRGVLKIFLENVIRDAVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG",
-                  Modification = "Acetyl,X(1*,5,8,12,16,20)[2]",
-                  ScanMetdata = ScanMetadata,
-                  PrecursorMass = 11355.38,
+pull_scan_numbers(Sequence = Sequence,
+                  ScanMetadata = ScanMetadata,
                   RTStart = 30,
                   RTEnd = 60)
 
