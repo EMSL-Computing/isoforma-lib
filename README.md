@@ -8,4 +8,4 @@ To get started, read our [vignette](https://emsl-computing.github.io/isoforma-li
 
 # Installation Checks
 
-The package has been succesfully installed on an Apple M1 Max using 13.6.1 and a Windows PC running Windows 11. 
+The package has been succesfully installed on an Apple M1 Max using 13.6.1 and a Windows PC running Windows 11. **We encourage users to please report any installation issues on the Github Issues page, and we are more than happy to help!**
