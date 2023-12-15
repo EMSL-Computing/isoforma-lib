@@ -9,7 +9,7 @@ abundance_matrix(SummedIsotopes, IonGroup)
 \arguments{
 \item{SummedIsotopes}{(summed isotopes) The dataframe of summed_isotopes from sum_isotopes. Required.}
 
-\item{IonGroup}{(character) Must be an ion group to subset data down to (a-c or x-z). Required.}
+\item{IonGroup}{(character) Must be an ion group to subset data down to ( “a”, “b”, “c”, “x”, “y”, or “z”). Required.}
 }
 \value{
 (abundance matrix) A data.frame where each row is a fragment and

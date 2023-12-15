@@ -12,7 +12,7 @@
 #' @param ActivationMethod (character) A string to determine ions. "HCD", "CID", and
 #'     "ETD" select b and y; a, b, and y; and c and z, respectively. Anything else
 #'     returns all 6 ions. Required.
-#' @param IonGroup (character) Must be an ion group to subset data down to (a-c or x-z). Required.
+#' @param IonGroup (character) Must be an ion group to subset data down to ( “a”, “b”, “c”, “x”, “y”, or “z”). Required.
 #' @param CorrelationScore (numeric) A minimum Correlation Score to filter peaks with
 #'     at least 2 isotopes. Default is 0.7. Optional.
 #' @param PPMThreshold (numeric) A minimum PPM Threshold for matching calculated

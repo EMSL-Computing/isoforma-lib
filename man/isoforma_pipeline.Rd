@@ -32,7 +32,7 @@ Charge state (maximum charge) to consider fragments in the calculation. Required
 "ETD" select b and y; a, b, and y; and c and z, respectively. Anything else
 returns all 6 ions. Required.}
 
-\item{IonGroup}{(character) Must be an ion group to subset data down to (a-c or x-z). Required.}
+\item{IonGroup}{(character) Must be an ion group to subset data down to ( “a”, “b”, “c”, “x”, “y”, or “z”). Required.}
 
 \item{CorrelationScore}{(numeric) A minimum Correlation Score to filter peaks with
 at least 2 isotopes. Default is 0.7. Optional.}

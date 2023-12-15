@@ -3,7 +3,7 @@
 #' @description Returns a data.frame of class "abundance_matrix_isoforma" where each
 #'    row is a fragment, and each column is a proteoform summed abundance.
 #' 
-#' @param IonGroup (character) Must be an ion group to subset data down to (a-c or x-z). Required. 
+#' @param IonGroup (character) Must be an ion group to subset data down to ( “a”, “b”, “c”, “x”, “y”, or “z”). Required. 
 #' @param SummedIsotopes (summed isotopes) The dataframe of summed_isotopes from sum_isotopes. Required.
 #' 
 #' @return (abundance matrix) A data.frame where each row is a fragment and 
