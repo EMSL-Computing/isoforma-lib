@@ -52,7 +52,7 @@ ScanMetadata <- pspecterlib::get_scan_metadata(
 
 #Define Sequence and Modifications
 Sequence = "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
-Modification = "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
+Modification = "Acetyl,(1^,5,8,12,16)[2];Methyl,(79)[1];Oxidation,(84)[1]"
 
 # Getting output of pspecterlib::multiple_modifications, required for this function.
 Sequences = pspecterlib::multiple_modifications(Sequence, Modification, ReturnUnmodified = TRUE)

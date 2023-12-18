@@ -75,7 +75,7 @@ PeakSum <- sum_ms2_spectra(PeakDataList = PeakDataList)
 # Get proteoform strings
 MultipleMods <- pspecterlib::multiple_modifications(
     Sequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
-    Modification = "6.018427,V(17,26,70)[1]",
+    Modification = "6.018427,(17,26,70)[1]",
     ReturnUnmodified = TRUE
 )
 

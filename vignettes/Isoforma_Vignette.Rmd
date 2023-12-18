@@ -80,7 +80,17 @@ head(PeaksSum) %>% knitr::kable()
 ## 3. Match experimental and literature fragments for every proteoform
 
 To generate all proteoforms to test, use the pspecterlib::multiple_modifications
-function. Then, pass that list of sequences to the fragments_per_ptm function. If
+function. This function includes a "Modifications" parameter that requires a special 
+string format. The string begins with a UniMod modification name, such as Methyl
+or Acetyl, or the molecular weight of the modification group, followed by a comma.
+Then, in parentheses, list the possible positions of the modifications as integers
+separated by commas. If you would like one of these positions to alwasy have a modification,
+you can place a ^ after the number. Finally, after the closing the parentheses, in 
+square brackets, place the total number of modifications to include in each string.
+You can also provide a list of integers separated by commas within the brackets in
+order to create strings with differing amounts of modifications. An expample 
+
+Once ran, pass that list of sequences to the fragments_per_ptm function. If
 the isotoping algorithm crashes, considering switching the to IsotopeAlgorithm = "isopat".
 This function will return a list of matched_peak objects from pspecterlib. 
 
@@ -88,7 +98,7 @@ This function will return a list of matched_peak objects from pspecterlib.
 # Generate a list of PTMs to test
 MultipleMods <- pspecterlib::multiple_modifications(
   Sequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
-  Modification = "6.018427,V(17,26,70)[1]",
+  Modification = "6.018427,(17,26,70)[1]",
   ReturnUnmodified = TRUE
 )
 
