@@ -1,5 +1,5 @@
 Glossary <- data.table::fread(
-  system.file("extdata", "Unimod_v20220602.csv", package = "pspecterlib")
+  system.file("extdata", "Unimod_v20220602.csv", package = "isoforma")
 )
 
 ## Define a function for matching peaks in isoforma
