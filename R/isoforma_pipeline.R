@@ -56,7 +56,7 @@
 #'     ActivationMethod = "ETD",
 #'     IonGroup = "c",
 #'     CorrelationScore = 0,
-#'     IsotopeAlgorithm = "Rdisop", # If this step crashes, switch to "isopat"
+#'     IsotopeAlgorithm = "isopat", # Rdisop is preferred, is faster, and is more accurate, but it tends to crash on Windows
 #'     Messages = TRUE
 #' )
 #'

@@ -87,7 +87,7 @@ IsoForma <- isoforma_pipeline(
     ActivationMethod = "ETD",
     IonGroup = "c",
     CorrelationScore = 0,
-    IsotopeAlgorithm = "Rdisop", # If this step crashes, switch to "isopat"
+    IsotopeAlgorithm = "isopat", # Rdisop is preferred and is more accurate, but tends to crash
     Messages = TRUE
 )
 
