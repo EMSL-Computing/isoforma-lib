@@ -46,24 +46,15 @@ isolation window filtering
 \dontrun{
 
 # Generate the ScanMetadata object
-ScanMetadata <- pspecterlib::get_scan_metadata(
-    MSPath = "/Users/degn400/Desktop/IsoForma_Test/Sorghum-Histone0622162L11.mzML"
-)
+xml_data <- pspecterlib::get_scan_metadata(MSPath = system.file("extdata", "Example.mzML", package = "isoforma"))
 
-#Define Sequence and Modifications
-Sequence = "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
-Modification = "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
+# Define the modified sequences 
+Sequence <- "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
+Modifications <- "Acetyl,(1^,5,8,12,16)[2];Methyl,(79)[1];Oxidation,(84)[1]"
+Modified_Sequences <- pspecterlib::multiple_modifications(Sequence, Modifications, ReturnUnmodified = TRUE)
 
-# Getting output of pspecterlib::multiple_modifications, required for this function.
-Sequences = pspecterlib::multiple_modifications(Sequence, Modification, ReturnUnmodified = TRUE)
-
-Sequence = Sequences[length(Sequences)]
-
-# Run function
-pull_scan_numbers(Sequence = Sequence,
-                  ScanMetadata = ScanMetadata,
-                  RTStart = 30,
-                  RTEnd = 60)
+# Pull scan numbers 
+Scan_Numbers <- pull_scan_numbers(Sequence = Modified_Sequences[5], ScanMetadata = xml_data, RTStart = 100, RTEnd = 110)
 
 }
 }

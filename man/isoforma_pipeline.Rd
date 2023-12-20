@@ -8,13 +8,11 @@ and calculates the proportions of each proteoform}
 isoforma_pipeline(
   Sequences,
   SummedSpectra,
-  MaxFragmentCharge,
+  PrecursorCharge,
   ActivationMethod,
   IonGroup,
-  CorrelationScore = 0.7,
   PPMThreshold = 10,
   IsotopeAlgorithm = "Rdisop",
-  MinimumAbundance = 0.01,
   Messages = FALSE,
   Top = 8
 )
@@ -25,27 +23,23 @@ isoforma_pipeline(
 \item{SummedSpectra}{(peak_data) A data.table with a "M/Z" and "Intensity" column,
 preferably calculated with the function sum_spectra. Required.}
 
-\item{MaxFragmentCharge}{(numeric) A single numeric to determine the Precursor
-Charge state (maximum charge) to consider fragments in the calculation. Required.}
+\item{PrecursorCharge}{(numeric) A single numeric to determine the Precursor Charge state
+(maximum charge) to consider fragments in the calculation. Required.}
 
 \item{ActivationMethod}{(character) A string to determine ions. "HCD", "CID", and
 "ETD" select b and y; a, b, and y; and c and z, respectively. Anything else
 returns all 6 ions. Required.}
 
-\item{IonGroup}{(character) Must be an ion group to subset data down to (a-c or x-z). Required.}
+\item{IonGroup}{(character) Must be an ion group to subset data down. Write "a", "b",
+"c", "x", "y", or "z". Required.}
 
-\item{CorrelationScore}{(numeric) A minimum Correlation Score to filter peaks with
-at least 2 isotopes. Default is 0.7. Optional.}
-
-\item{PPMThreshold}{(numeric) A minimum PPM Threshold for matching calculated
-and exprimental peaks. Default is 10. Optional.}
+\item{PPMThreshold}{(numeric) A minimum PPM Threshold for matching calculated and experimental
+peaks. Default is 10. Optional.}
 
 \item{IsotopeAlgorithm}{(character) "isopat" uses the isopat package to calculate
 isotopes, while "Rdisop" uses the Rdisop package. Though more accurate,
 Rdisop has been known to crash on Windows computers when called iteratively
 more than 1000 times. Default is Rdisop, though isopat is an alternative.}
-
-\item{MinimumAbundance}{(numeric) Minimum abundance for calculating isotopes. Default is 0.01.}
 
 \item{Top}{(integer) The top N proportions to return, ranked from higest to lowest. Default is 8.}
 
@@ -62,7 +56,11 @@ and calculate_proportions.
 \examples{
 \dontrun{
 
-# Load 3 peaks to sum
+###################################################
+## BRUNNER VALINE DATASET - KNOWN CONCENTRATIONS ##
+###################################################
+
+# Load 3 peaks to sum             
 PeakDataList <- list(
  readRDS(system.file("extdata", "PeakData_1to1to1_1.RDS", package = "isoforma")),
  readRDS(system.file("extdata", "PeakData_1to1to1_2.RDS", package = "isoforma")),
@@ -72,10 +70,10 @@ PeakDataList <- list(
 # Sum peaks
 PeakSum <- sum_ms2_spectra(PeakDataList = PeakDataList)
 
-# Get proteoform strings
+# Get proteoform strings    
 MultipleMods <- pspecterlib::multiple_modifications(
     Sequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
-    Modification = "6.018427,V(17,26,70)[1]",
+    Modification = "6.018427,(17,26,70)[1]",
     ReturnUnmodified = TRUE
 )
 
@@ -83,15 +81,40 @@ MultipleMods <- pspecterlib::multiple_modifications(
 IsoForma <- isoforma_pipeline(
     Sequences = MultipleMods,
     SummedSpectra = PeakSum,
-    MaxFragmentCharge = 11,
+    PrecursorCharge = 11,
     ActivationMethod = "ETD",
     IonGroup = "c",
     CorrelationScore = 0,
-    IsotopeAlgorithm = "Rdisop", # If this step crashes, switch to "isopat"
+    IsotopeAlgorithm = "isopat", # Rdisop is preferred, is faster, and is more accurate, but it tends to crash on Windows
     Messages = TRUE
 )
 
-}
+##############################################
+## HISTONE DATASET - UNKNOWN CONCENTRATIONS ##
+##############################################
 
+# Load raw mzML data 
+xml_data <- pspecterlib::get_scan_metadata(MSPath = system.file("extdata", "Example.mzML", package = "isoforma"))
+
+# Pull scan numbers
+Sequence <- "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
+Modifications <- "Acetyl,(1^,5,8,12,16)[2];Methyl,(79)[1];Oxidation,(84)[1]"
+Modified_Sequences <- pspecterlib::multiple_modifications(Sequence, Modifications, ReturnUnmodified = TRUE)
+Scan_Numbers <- pull_scan_numbers(Sequence = Modified_Sequences[5], ScanMetadata = xml_data, RTStart = 100, RTEnd = 110)
+
+# Sum Peaks
+Summed_Peaks <- sum_ms2_spectra(ScanMetadata = xml_data, ScanNumbers = Scan_Numbers)
+
+# Run the pipeline
+IsoForma2 <- isoforma_pipeline(
+    Sequences = Modified_Sequences,
+    SummedSpectra = Summed_Peaks,
+    PrecursorCharge = 16, 
+    ActivationMethod = "ECD",
+    IonGroup = "c",
+    IsotopeAlgorithm = "isopat" # Rdisop is preferred, is faster, and is more accurate, but it tends to crash on Windows
+)
+
+}
 
 }
