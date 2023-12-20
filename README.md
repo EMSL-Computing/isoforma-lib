@@ -21,3 +21,7 @@ The package has been succesfully installed on an Apple M1 Max using 13.6.1 and a
 # Reference
 
 If you use IsoForma or any portions of this code please cite: Degnan et al. "IsoForma: An R Package for Quantifying and Visualizing Positional Isomers in Top-Down LC-MS/MS Data". Submitted to Journal of Proteome Research.
+
+# Modifications
+
+For a list of acceptable modifications, see the "Modification" column of [Glossary](https://github.com/EMSL-Computing/isoforma-lib/blob/david_develop/inst/extdata/Unimod_v20220602.csv). If there is a modification needed that is not in this list, please report the modification to our issues page. 
