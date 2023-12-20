@@ -96,7 +96,7 @@ MultipleMods <- pspecterlib::multiple_modifications(
 AllFragments <- fragments_per_ptm(
    Sequences = MultipleMods,
    SummedSpectra = PeaksSum,
-   PrecursorCharge = 11, 
+   MaxFragmentCharge = 11, 
    ActivationMethod = "ETD", 
    CorrelationScore = 0, # Here, we don't care about correlation score filtering 
    Messages = FALSE
@@ -175,4 +175,32 @@ ptm_heatmap(IsoformaFragments = AllFragments)
 
 This simple MGF writer function can be used to generate MGF files of peak data
 for use with external tools. 
+
+# Additional Notes 
+
+## Correlation Score Filter
+
+The cosine correlation filter, built into pspecterlib, was designed to remove lowly
+supported fragments in top-down mass spectrometry data, where there are more peaks
+than bottom-up data. This approach does not make intuitive sense in IsoForma, which performs 
+optimally when all possible fragmented peaks are included. 
+
+Unfortunately, there is currently no formal guidance on a cosine correlation score
+threshold for matching peaks. Until such guidance exists for quantifying positional 
+isomers, we recommend setting the cosine correlation threshold to 0. 
+Below, we have an example of the effect of increasing
+the correlation score filter on the 1:4:8 ratio dataset, which does not appear to 
+significantly change the data.
+
+```{r, echo = F, fig.height = 4}
+knitr::include_graphics("Correlation_Filter.png")
+```
+
+
+
+
+
+
+
+
 
