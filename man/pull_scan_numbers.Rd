@@ -46,14 +46,12 @@ isolation window filtering
 \dontrun{
 
 # Generate the ScanMetadata object
-xml_data <- pspecterlib::get_scan_metadata(
-    MSPath = system.file("extdata", "Example.mzML", package = "isoforma")
-)
+xml_data <- pspecterlib::get_scan_metadata(MSPath = system.file("extdata", "Example.mzML", package = "isoforma"))
 
 # Define the modified sequences 
 Sequence <- "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
 Modifications <- "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
-Modified_Sequences <- pspecterlib::multiple_modifications(Sequence, Modification, ReturnUnmodified = TRUE)
+Modified_Sequences <- pspecterlib::multiple_modifications(Sequence, Modifications, ReturnUnmodified = TRUE)
 
 # Pull scan numbers 
 Scan_Numbers <- pull_scan_numbers(Sequence = Modified_Sequences[5], ScanMetadata = xml_data, RTStart = 100, RTEnd = 110)

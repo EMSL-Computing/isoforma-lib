@@ -9,7 +9,6 @@ fragments_per_ptm(
   SummedSpectra,
   PrecursorCharge,
   ActivationMethod,
-  CorrelationScore = 0.7,
   PPMThreshold = 10,
   IsotopeAlgorithm = "Rdisop",
   Messages = FALSE
@@ -28,10 +27,7 @@ calculated with the function sum_spectra. Required.}
 select b and y; a, b, and y; and c and z, respectively. Anything else
 returns all 6 ions. Required.}
 
-\item{CorrelationScore}{(numeric) A minimum Correlation Score to filter peaks with at
-least 2 isotopes. Default is 0.7. Optional.}
-
-\item{PPMThreshold}{(numeric) A minimum PPM Threshold for matching calculated and exprimental
+\item{PPMThreshold}{(numeric) A minimum PPM Threshold for matching calculated and experimental
 peaks. Default is 10. Optional.}
 
 \item{IsotopeAlgorithm}{(character) "isopat" uses the isopat package to calculate isotopes,

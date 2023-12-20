@@ -40,6 +40,10 @@ or provide a list of pspecterlib::peak_data objects to sum.
 \examples{
 \dontrun{
 
+#######################
+## SUMMING PEAK DATA ##
+#######################
+
 # Load 3 peaks to sum
 PeakDataList <- list(
   readRDS(system.file("extdata", "PeakData_1to1to1_1.RDS", package = "isoforma")),
@@ -48,5 +52,24 @@ PeakDataList <- list(
 )
 
 sum_ms2_spectra(PeakDataList = PeakDataList)
+
+################################
+## SUMMING PEAK DATA FROM XML ##
+################################
+
+# Generate the ScanMetadata object
+xml_data <- pspecterlib::get_scan_metadata(MSPath = system.file("extdata", "Example.mzML", package = "isoforma"))
+
+# Define the modified sequences 
+Sequence <- "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
+Modifications <- "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
+Modified_Sequences <- pspecterlib::multiple_modifications(Sequence, Modification, ReturnUnmodified = TRUE)
+
+# Pull scan numbers 
+Scan_Numbers <- pull_scan_numbers(Sequence = Modified_Sequences[5], ScanMetadata = xml_data, RTStart = 100, RTEnd = 110)
+
+# Sum peaks
+sum_ms2_spectra(ScanMetadata = xml_data, ScanNumbers = Scan_Numbers)
+
 }
 }

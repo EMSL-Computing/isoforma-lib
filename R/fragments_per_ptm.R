@@ -12,9 +12,7 @@
 #' @param ActivationMethod (character) A string to determine ions. "HCD", "CID", and "ETD" 
 #'     select b and y; a, b, and y; and c and z, respectively. Anything else
 #'     returns all 6 ions. Required. 
-#' @param CorrelationScore (numeric) A minimum Correlation Score to filter peaks with at 
-#'     least 2 isotopes. Default is 0.7. Optional.
-#' @param PPMThreshold (numeric) A minimum PPM Threshold for matching calculated and exprimental
+#' @param PPMThreshold (numeric) A minimum PPM Threshold for matching calculated and experimental
 #'     peaks. Default is 10. Optional.
 #' @param IsotopeAlgorithm (character) "isopat" uses the isopat package to calculate isotopes, 
 #'     while "Rdisop" uses the Rdisop package. Though more accurate, Rdisop has been 
@@ -57,7 +55,6 @@ fragments_per_ptm <- function(Sequences,
                               SummedSpectra,
                               PrecursorCharge,
                               ActivationMethod,
-                              CorrelationScore = 0.7,
                               PPMThreshold = 10,
                               IsotopeAlgorithm = "Rdisop",
                               Messages = FALSE) {
@@ -143,10 +140,10 @@ fragments_per_ptm <- function(Sequences,
         PPMThreshold = PPMThreshold, 
         IonGroups = theIons,
         MinimumAbundance = 0.01,
-        CorrelationScore = CorrelationScore,
+        CorrelationScore = 0,
         IsotopeAlgorithm = IsotopeAlgorithm,
         AlternativeSequence = seq,
-        AlternativeSpectrum = thePeaks, 
+        AlternativeSpectrum = thePeaks,  
         AlternativeCharge = PrecursorCharge
       )
     )

@@ -12,19 +12,19 @@ library(dplyr)
 
 # What is IsoForma?
 
-IsoForma is a package for quantifying positional isomers (QPI) in MS2 spectra data. 
+*IsoForma* is a package for quantifying positional isomers (QPI) in MS2 spectra data. 
 Currently, analysis of this type of data requires the use of several separate 
 tools which is inconvenient and time-consuming. This goal of this
 software is to offer all the functionality needed for this analysis in
 a streamlined package. 
 
-Much of the backend functionality is drawn from the pspecterlib package, including
-generating metadata objects. More information about the backend package
+Much of the back-end functionality is drawn from the *pspecterlib* package. 
+More information about the backend package
 can be found [here](https://github.com/EMSL-Computing/pspecterlib).
 
-IsoForma was built to ingest two main types of data: 1) an MS file (XML-based or 
+*IsoForma* was built to ingest two main types of data: 1) an MS file (XML-based or 
 ThermoFisher raw) or 2) a list of peak_data objects that can be generated with 
-pspecterlib. If an MS file is provided, automatic MS2 peak detection options 
+*pspecterlib.* If an MS file is provided, automatic MS2 peak detection options 
 are provided. Otherwise, the provided peak data is simply summed together. 
 
 Here are the general steps of the IsoForma algorithm and their respective functions: 
@@ -43,11 +43,39 @@ Here are the general steps of the IsoForma algorithm and their respective functi
   
 Steps 3-6 can be run all together with our main pipeline function. 
 
-## 1. Select scan numbers
+We will first walk through an example with the **Pasavento histone dataset** and then
+the **Brunner valine dataset.**
 
-To select scan numbers, either use the pull_scan_numbers() function to automatically
-detect and suggest MS2 peaks, or select them yourself and make pspecter peak_data objects out of them. See 
-?pspecterlib::make_peak_data or ?pspecterlib::get_peak_data.
+## Pasavento Histone Dataset 
+
+#### 1. Select scan numbers
+
+In this dataset, the MS2 scan numbers of peak data that needs to be summed together 
+is unknown. Here, use the pull_scan_numbers() function to automatically detect
+and suggest MS2 peaks. 
+
+```{r}
+# Load raw mzML data 
+xml_data <- pspecterlib::get_scan_metadata(MSPath = system.file("extdata", "Example.mzML", package = "isoforma"))
+
+# Pull scan numbers
+Sequence <- "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
+Modifications <- "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
+Modified_Sequences <- pspecterlib::multiple_modifications(Sequence, Modifications, ReturnUnmodified = TRUE)
+Scan_Numbers <- pull_scan_numbers(Sequence = Modified_Sequences[5], ScanMetadata = xml_data, RTStart = 100, RTEnd = 110)
+
+head(Scan_Numbers)
+```
+
+#### 2. Sum Peaks
+
+## Brunner valine dataset
+
+#### 1. Select scan numbers
+
+Here, peaks have been selected by a different software. To generate peak data objects,
+see ?pspecterlib::make_peak_data or ?pspecterlib::get_peak_data. Below, we generate 
+a list of peak data objects: 
 
 ```{r Make A Peak Data List}
 # Make a list of pspecterlib peak_data objects
