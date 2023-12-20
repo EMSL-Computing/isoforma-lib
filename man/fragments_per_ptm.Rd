@@ -55,7 +55,7 @@ proteoform, use the pspecterlib multiple_modifications function.
 # Generate the list of PTMs to test 
 MultipleMods <- pspecterlib::multiple_modifications(
   Sequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
-  Modification = "6.018427,V(17,26,70)[1]",
+  Modification = "6.018427,(17,26,70)[1]",
   ReturnUnmodified = TRUE
 )
 

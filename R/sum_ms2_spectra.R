@@ -40,7 +40,7 @@
 #'
 #' # Define the modified sequences 
 #' Sequence <- "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
-#' Modifications <- "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
+#' Modifications <- "Acetyl,(1^,5,8,12,16)[2];Methyl,(79)[1];Oxidation,(84)[1]"
 #' Modified_Sequences <- pspecterlib::multiple_modifications(Sequence, Modification, ReturnUnmodified = TRUE)
 #' 
 #' # Pull scan numbers 

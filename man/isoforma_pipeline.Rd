@@ -73,7 +73,7 @@ PeakSum <- sum_ms2_spectra(PeakDataList = PeakDataList)
 # Get proteoform strings    
 MultipleMods <- pspecterlib::multiple_modifications(
     Sequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
-    Modification = "6.018427,V(17,26,70)[1]",
+    Modification = "6.018427,(17,26,70)[1]",
     ReturnUnmodified = TRUE
 )
 
@@ -98,7 +98,7 @@ xml_data <- pspecterlib::get_scan_metadata(MSPath = system.file("extdata", "Exam
 
 # Pull scan numbers
 Sequence <- "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
-Modifications <- "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
+Modifications <- "Acetyl,(1^,5,8,12,16)[2];Methyl,(79)[1];Oxidation,(84)[1]"
 Modified_Sequences <- pspecterlib::multiple_modifications(Sequence, Modifications, ReturnUnmodified = TRUE)
 Scan_Numbers <- pull_scan_numbers(Sequence = Modified_Sequences[5], ScanMetadata = xml_data, RTStart = 100, RTEnd = 110)
 

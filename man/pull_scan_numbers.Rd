@@ -50,7 +50,7 @@ xml_data <- pspecterlib::get_scan_metadata(MSPath = system.file("extdata", "Exam
 
 # Define the modified sequences 
 Sequence <- "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
-Modifications <- "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
+Modifications <- "Acetyl,(1^,5,8,12,16)[2];Methyl,(79)[1];Oxidation,(84)[1]"
 Modified_Sequences <- pspecterlib::multiple_modifications(Sequence, Modifications, ReturnUnmodified = TRUE)
 
 # Pull scan numbers 
