@@ -87,7 +87,7 @@
 #'     PrecursorCharge = 16, 
 #'     ActivationMethod = "ECD",
 #'     IonGroup = "c",
-#'     IsotopeAlgorithm = "isopat", # Rdisop is preferred, is faster, and is more accurate, but it tends to crash on Windows
+#'     IsotopeAlgorithm = "isopat" # Rdisop is preferred, is faster, and is more accurate, but it tends to crash on Windows
 #' )
 #' 
 #' }
