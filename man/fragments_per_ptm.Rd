@@ -7,12 +7,11 @@
 fragments_per_ptm(
   Sequences,
   SummedSpectra,
-  MaxFragmentCharge,
+  PrecursorCharge,
   ActivationMethod,
   CorrelationScore = 0.7,
   PPMThreshold = 10,
   IsotopeAlgorithm = "Rdisop",
-  MinimumAbundance = 0.01,
   Messages = FALSE
 )
 }
@@ -22,7 +21,7 @@ fragments_per_ptm(
 \item{SummedSpectra}{(peak_data) A data.table with a "M/Z" and "Intensity" column, preferably
 calculated with the function sum_spectra. Required.}
 
-\item{MaxFragmentCharge}{(numeric) A single numeric to determine the Max Fragment Charge state
+\item{PrecursorCharge}{(numeric) A single numeric to determine the Precursor Charge state
 (maximum charge) to consider fragments in the calculation. Required.}
 
 \item{ActivationMethod}{(character) A string to determine ions. "HCD", "CID", and "ETD"
@@ -39,8 +38,6 @@ peaks. Default is 10. Optional.}
 while "Rdisop" uses the Rdisop package. Though more accurate, Rdisop has been
 known to crash on Windows computers when called iteratively more than 1000 times.
 Default is Rdisop, though isopat is an alternative.}
-
-\item{MinimumAbundance}{(numeric) Minimum abundance for calculating isotopes. Default is 0.01.}
 
 \item{Messages}{(logic) A TRUE/FALSE to indicate whether status messages should be printed.
 Default is FALSE.}
@@ -59,26 +56,26 @@ proteoform, use the pspecterlib multiple_modifications function.
 \examples{
 \dontrun{
 
-# Generate the list of PTMs to test
+# Generate the list of PTMs to test 
 MultipleMods <- pspecterlib::multiple_modifications(
   Sequence = "LQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
   Modification = "6.018427,V(17,26,70)[1]",
   ReturnUnmodified = TRUE
 )
 
-# Load example summed peaks
+# Load example summed peaks 
 SummedPeaks <- readRDS(system.file("extdata", "SummedPeaks_1to1to1.RDS", package = "isoforma"))
 
 # Run the function
 fragments_per_ptm(
-   Sequences = MultipleMods,
-   SummedSpectra = SummedPeaks,
-   MaxFragmentCharge = 11,
+   Sequences = MultipleMods, 
+   SummedSpectra = SummedPeaks, 
+   PrecursorCharge = 11, 
    ActivationMethod = "ETD",
-   CorrelationScore = 0, # Here, we don't care about correlation score filtering
+   CorrelationScore = 0, # Here, we don't care about correlation score filtering 
    Messages = TRUE
 )
 
 }
-
+    
 }

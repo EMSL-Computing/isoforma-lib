@@ -30,7 +30,11 @@
 #'
 #' @examples
 #' \dontrun{
-#'
+#' 
+#' ###################################################
+#' ## BRUNNER VALINE DATASET - KNOWN CONCENTRATIONS ##
+#' ###################################################
+#' 
 #' # Load 3 peaks to sum
 #' PeakDataList <- list(
 #'  readRDS(system.file("extdata", "PeakData_1to1to1_1.RDS", package = "isoforma")),
@@ -59,6 +63,25 @@
 #'     IsotopeAlgorithm = "isopat", # Rdisop is preferred, is faster, and is more accurate, but it tends to crash on Windows
 #'     Messages = TRUE
 #' )
+#'
+#' ################################################
+#' ## PASAVENTO DATASET - UNKNOWN CONCENTRATIONS ##
+#' ################################################
+#' 
+#' # Load raw mzML data 
+#' xml_data <- pspecterlib::get_scan_metadata(MSPath = system.file("extdata", "Example.mzML", package = "isoforma"))
+#' 
+#' # Pull scan numbers
+#' Sequence <- "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
+#' Modifications <- "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
+#' Modified_Sequences <- pspecterlib::multiple_modifications(Sequence, Modification, ReturnUnmodified = TRUE)
+#' Scan_Numbers <- pull_scan_numbers(Sequence = Modified_Sequences[5], ScanMetadata = xml_data, RTStart = 100, RTEnd = 110)
+#' 
+#' # Sum Peaks
+#' 
+#' 
+#' 
+#'
 #'
 #' }
 #'
