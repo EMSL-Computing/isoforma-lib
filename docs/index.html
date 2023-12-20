@@ -402,7 +402,7 @@ xml_data &lt;- pspecterlib::get_scan_metadata(MSPath = system.file(&quot;extdata
 
 # Pull scan numbers
 Sequence &lt;- &quot;SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG&quot;
-Modifications &lt;- &quot;Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]&quot;
+Modifications &lt;- &quot;Acetyl,(1^,5,8,12,16)[2];Methyl,(79)[1];Oxidation,(84)[1]&quot;
 Modified_Sequences &lt;- pspecterlib::multiple_modifications(Sequence, Modifications, ReturnUnmodified = TRUE)
 Scan_Numbers &lt;- pull_scan_numbers(Sequence = Modified_Sequences[5], ScanMetadata = xml_data, RTStart = 100, RTEnd = 110)
 
@@ -624,6 +624,105 @@ with this heatmap function.</p>
 <h2>write_mgf_simple()</h2>
 <p>This simple MGF writer function can be used to generate MGF files of
 peak data for use with external tools.</p>
+</div>
+</div>
+<div id="additional-notes" class="section level1">
+<h1>Additional Notes</h1>
+<div id="modificiation-formats" class="section level2">
+<h2>Modificiation Formats</h2>
+<p>Below are examples of different modification specifications and their
+results.</p>
+<pre class="r"><code># Single modification of a single PTM examples 
+multiple_modifications(&quot;TRICITIES&quot;, &quot;Methyl,(3)[1]&quot;)</code></pre>
+<pre><code>## [1] &quot;TRI[Methyl]CITIES&quot;</code></pre>
+<pre class="r"><code># Single modification of a single PTM examples 
+multiple_modifications(&quot;TRICITIES&quot;, &quot;1.00727,(3,5,7)[1]&quot;)</code></pre>
+<pre><code>## [1] &quot;TRI[1.00727]CITIES&quot; &quot;TRICI[1.00727]TIES&quot; &quot;TRICITI[1.00727]ES&quot;</code></pre>
+<pre class="r"><code># Multiple modifications of a single PTM example
+multiple_modifications(&quot;TRICITIES&quot;, &quot;Methyl,(3,5,7)[2]&quot;) </code></pre>
+<pre><code>## [1] &quot;TRI[Methyl]CI[Methyl]TIES&quot; &quot;TRI[Methyl]CITI[Methyl]ES&quot;
+## [3] &quot;TRICI[Methyl]TI[Methyl]ES&quot;</code></pre>
+<pre class="r"><code># Multiple modifications with a fixed position
+multiple_modifications(&quot;TRICITIES&quot;, &quot;Methyl,(3^,5,7)[2]&quot;) </code></pre>
+<pre><code>## [1] &quot;TRI[Methyl]CI[Methyl]TIES&quot; &quot;TRI[Methyl]CITI[Methyl]ES&quot;</code></pre>
+<pre class="r"><code># Multiple modifications with two fixed positions 
+multiple_modifications(&quot;TRICITIES&quot;, &quot;Methyl,(3^,5,7^)[2]&quot;)</code></pre>
+<pre><code>## [1] &quot;TRI[Methyl]CITI[Methyl]ES&quot;</code></pre>
+<pre class="r"><code># Multiple modifications of a single PTM with any &quot;X&quot; residue
+multiple_modifications(&quot;TRICITIES&quot;, &quot;Methyl,(1,2,3,4,5,6,7,8,9)[2]&quot;)</code></pre>
+<pre><code>##  [1] &quot;T[Methyl]R[Methyl]ICITIES&quot; &quot;T[Methyl]RI[Methyl]CITIES&quot;
+##  [3] &quot;T[Methyl]RIC[Methyl]ITIES&quot; &quot;T[Methyl]RICI[Methyl]TIES&quot;
+##  [5] &quot;T[Methyl]RICIT[Methyl]IES&quot; &quot;T[Methyl]RICITI[Methyl]ES&quot;
+##  [7] &quot;T[Methyl]RICITIE[Methyl]S&quot; &quot;T[Methyl]RICITIES[Methyl]&quot;
+##  [9] &quot;TR[Methyl]I[Methyl]CITIES&quot; &quot;TR[Methyl]IC[Methyl]ITIES&quot;
+## [11] &quot;TR[Methyl]ICI[Methyl]TIES&quot; &quot;TR[Methyl]ICIT[Methyl]IES&quot;
+## [13] &quot;TR[Methyl]ICITI[Methyl]ES&quot; &quot;TR[Methyl]ICITIE[Methyl]S&quot;
+## [15] &quot;TR[Methyl]ICITIES[Methyl]&quot; &quot;TRI[Methyl]C[Methyl]ITIES&quot;
+## [17] &quot;TRI[Methyl]CI[Methyl]TIES&quot; &quot;TRI[Methyl]CIT[Methyl]IES&quot;
+## [19] &quot;TRI[Methyl]CITI[Methyl]ES&quot; &quot;TRI[Methyl]CITIE[Methyl]S&quot;
+## [21] &quot;TRI[Methyl]CITIES[Methyl]&quot; &quot;TRIC[Methyl]I[Methyl]TIES&quot;
+## [23] &quot;TRIC[Methyl]IT[Methyl]IES&quot; &quot;TRIC[Methyl]ITI[Methyl]ES&quot;
+## [25] &quot;TRIC[Methyl]ITIE[Methyl]S&quot; &quot;TRIC[Methyl]ITIES[Methyl]&quot;
+## [27] &quot;TRICI[Methyl]T[Methyl]IES&quot; &quot;TRICI[Methyl]TI[Methyl]ES&quot;
+## [29] &quot;TRICI[Methyl]TIE[Methyl]S&quot; &quot;TRICI[Methyl]TIES[Methyl]&quot;
+## [31] &quot;TRICIT[Methyl]I[Methyl]ES&quot; &quot;TRICIT[Methyl]IE[Methyl]S&quot;
+## [33] &quot;TRICIT[Methyl]IES[Methyl]&quot; &quot;TRICITI[Methyl]E[Methyl]S&quot;
+## [35] &quot;TRICITI[Methyl]ES[Methyl]&quot; &quot;TRICITIE[Methyl]S[Methyl]&quot;</code></pre>
+<pre class="r"><code># Multiple modifications with multiple PTMs examples and the base sequence returned
+multiple_modifications(&quot;TRICITIES&quot;, &quot;Methyl,(1)[1];Acetyl,(2,4,9)[1]&quot;, ReturnUnmodified = TRUE)</code></pre>
+<pre><code>## [1] &quot;TRICITIES&quot;                 &quot;T[Methyl]R[Acetyl]ICITIES&quot;
+## [3] &quot;T[Methyl]RIC[Acetyl]ITIES&quot; &quot;T[Methyl]RICITIES[Acetyl]&quot;</code></pre>
+<pre class="r"><code># Multiple modifications with multiple PTMs examples and the base sequence returned
+multiple_modifications(&quot;TRICITIES&quot;, &quot;Methyl,(1,2,3,4,5,6,7,8,9)[1];Acetyl,(2,4,9)[1]&quot;, ReturnUnmodified = TRUE)</code></pre>
+<pre><code>##  [1] &quot;TRICITIES&quot;                 &quot;T[Methyl]R[Acetyl]ICITIES&quot;
+##  [3] &quot;TR[Acetyl]ICITIES&quot;         &quot;TR[Acetyl]I[Methyl]CITIES&quot;
+##  [5] &quot;TR[Acetyl]IC[Methyl]ITIES&quot; &quot;TR[Acetyl]ICI[Methyl]TIES&quot;
+##  [7] &quot;TR[Acetyl]ICIT[Methyl]IES&quot; &quot;TR[Acetyl]ICITI[Methyl]ES&quot;
+##  [9] &quot;TR[Acetyl]ICITIE[Methyl]S&quot; &quot;TR[Acetyl]ICITIES[Methyl]&quot;
+## [11] &quot;T[Methyl]RIC[Acetyl]ITIES&quot; &quot;TR[Methyl]IC[Acetyl]ITIES&quot;
+## [13] &quot;TRI[Methyl]C[Acetyl]ITIES&quot; &quot;TRIC[Acetyl]ITIES&quot;        
+## [15] &quot;TRIC[Acetyl]I[Methyl]TIES&quot; &quot;TRIC[Acetyl]IT[Methyl]IES&quot;
+## [17] &quot;TRIC[Acetyl]ITI[Methyl]ES&quot; &quot;TRIC[Acetyl]ITIE[Methyl]S&quot;
+## [19] &quot;TRIC[Acetyl]ITIES[Methyl]&quot; &quot;T[Methyl]RICITIES[Acetyl]&quot;
+## [21] &quot;TR[Methyl]ICITIES[Acetyl]&quot; &quot;TRI[Methyl]CITIES[Acetyl]&quot;
+## [23] &quot;TRIC[Methyl]ITIES[Acetyl]&quot; &quot;TRICI[Methyl]TIES[Acetyl]&quot;
+## [25] &quot;TRICIT[Methyl]IES[Acetyl]&quot; &quot;TRICITI[Methyl]ES[Acetyl]&quot;
+## [27] &quot;TRICITIE[Methyl]S[Acetyl]&quot; &quot;TRICITIES[Acetyl]&quot;</code></pre>
+<pre class="r"><code># Multiple modifications with multiple PTMs examples and the base sequence returned
+multiple_modifications(&quot;TRICITIES&quot;, &quot;Methyl,(1^,2,3,4,5,6,7^,8,9)[3];1.00727,(2,4,9)[1]&quot;, ReturnUnmodified = TRUE)</code></pre>
+<pre><code>##  [1] &quot;TRICITIES&quot;                                 
+##  [2] &quot;T[Methyl]R[1.00727]ICITI[Methyl]ES&quot;        
+##  [3] &quot;T[Methyl]R[1.00727]I[Methyl]CITI[Methyl]ES&quot;
+##  [4] &quot;T[Methyl]R[1.00727]IC[Methyl]ITI[Methyl]ES&quot;
+##  [5] &quot;T[Methyl]R[1.00727]ICI[Methyl]TI[Methyl]ES&quot;
+##  [6] &quot;T[Methyl]R[1.00727]ICIT[Methyl]I[Methyl]ES&quot;
+##  [7] &quot;T[Methyl]R[1.00727]ICITI[Methyl]E[Methyl]S&quot;
+##  [8] &quot;T[Methyl]R[1.00727]ICITI[Methyl]ES[Methyl]&quot;
+##  [9] &quot;T[Methyl]R[Methyl]IC[1.00727]ITI[Methyl]ES&quot;
+## [10] &quot;T[Methyl]RI[Methyl]C[1.00727]ITI[Methyl]ES&quot;
+## [11] &quot;T[Methyl]RIC[1.00727]ITI[Methyl]ES&quot;        
+## [12] &quot;T[Methyl]RIC[1.00727]I[Methyl]TI[Methyl]ES&quot;
+## [13] &quot;T[Methyl]RIC[1.00727]IT[Methyl]I[Methyl]ES&quot;
+## [14] &quot;T[Methyl]RIC[1.00727]ITI[Methyl]E[Methyl]S&quot;
+## [15] &quot;T[Methyl]RIC[1.00727]ITI[Methyl]ES[Methyl]&quot;
+## [16] &quot;T[Methyl]R[Methyl]ICITI[Methyl]ES[1.00727]&quot;
+## [17] &quot;T[Methyl]RI[Methyl]CITI[Methyl]ES[1.00727]&quot;
+## [18] &quot;T[Methyl]RIC[Methyl]ITI[Methyl]ES[1.00727]&quot;
+## [19] &quot;T[Methyl]RICI[Methyl]TI[Methyl]ES[1.00727]&quot;
+## [20] &quot;T[Methyl]RICIT[Methyl]I[Methyl]ES[1.00727]&quot;
+## [21] &quot;T[Methyl]RICITI[Methyl]E[Methyl]S[1.00727]&quot;
+## [22] &quot;T[Methyl]RICITI[Methyl]ES[1.00727]&quot;</code></pre>
+<pre class="r"><code># Combine single and multiple modification examples
+c(multiple_modifications(&quot;TRICITIES&quot;, &quot;Methyl,(1,2,3,4,5)[1]&quot;),
+  multiple_modifications(&quot;TRICITIES&quot;, &quot;Methyl,(1,2,3,4,5)[2]&quot;))</code></pre>
+<pre><code>##  [1] &quot;T[Methyl]RICITIES&quot;         &quot;TR[Methyl]ICITIES&quot;        
+##  [3] &quot;TRI[Methyl]CITIES&quot;         &quot;TRIC[Methyl]ITIES&quot;        
+##  [5] &quot;TRICI[Methyl]TIES&quot;         &quot;T[Methyl]R[Methyl]ICITIES&quot;
+##  [7] &quot;T[Methyl]RI[Methyl]CITIES&quot; &quot;T[Methyl]RIC[Methyl]ITIES&quot;
+##  [9] &quot;T[Methyl]RICI[Methyl]TIES&quot; &quot;TR[Methyl]I[Methyl]CITIES&quot;
+## [11] &quot;TR[Methyl]IC[Methyl]ITIES&quot; &quot;TR[Methyl]ICI[Methyl]TIES&quot;
+## [13] &quot;TRI[Methyl]C[Methyl]ITIES&quot; &quot;TRI[Methyl]CI[Methyl]TIES&quot;
+## [15] &quot;TRIC[Methyl]I[Methyl]TIES&quot;</code></pre>
 </div>
 </div>
 

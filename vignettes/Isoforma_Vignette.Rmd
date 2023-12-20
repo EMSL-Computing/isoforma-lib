@@ -7,6 +7,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, error = FALSE)
 library(isoforma)
+library(pspecterlib)
 library(dplyr)
 ```
 
@@ -60,7 +61,7 @@ xml_data <- pspecterlib::get_scan_metadata(MSPath = system.file("extdata", "Exam
 
 # Pull scan numbers
 Sequence <- "SGRGKGGKGLGKGGAKRHRKVLRDNIQGITKPAIRRLARRGGVKRISGLIYEETRTVLKTFLENVIRDSVTYTEHARRKTVTAMDVVYALKRQGRTLYGFGG"
-Modifications <- "Acetyl,X(1^,5,8,12,16)[2];Methyl,K(79)[1];Oxidation,M(84)[1]"
+Modifications <- "Acetyl,(1^,5,8,12,16)[2];Methyl,(79)[1];Oxidation,(84)[1]"
 Modified_Sequences <- pspecterlib::multiple_modifications(Sequence, Modifications, ReturnUnmodified = TRUE)
 Scan_Numbers <- pull_scan_numbers(Sequence = Modified_Sequences[5], ScanMetadata = xml_data, RTStart = 100, RTEnd = 110)
 
@@ -233,6 +234,66 @@ ptm_heatmap(IsoformaFragments = AllFragments)
 
 This simple MGF writer function can be used to generate MGF files of peak data
 for use with external tools. 
+
+# Additional Notes 
+
+## Modificiation Formats 
+
+Below are examples of different modification specifications and their results. 
+
+```{r}
+# Single modification of a single PTM examples 
+multiple_modifications("TRICITIES", "Methyl,(3)[1]")
+```
+
+```{r}
+# Single modification of a single PTM examples 
+multiple_modifications("TRICITIES", "1.00727,(3,5,7)[1]")
+```
+
+```{r}
+# Multiple modifications of a single PTM example
+multiple_modifications("TRICITIES", "Methyl,(3,5,7)[2]") 
+```
+
+```{r}
+# Multiple modifications with a fixed position
+multiple_modifications("TRICITIES", "Methyl,(3^,5,7)[2]") 
+```
+
+```{r}
+# Multiple modifications with two fixed positions 
+multiple_modifications("TRICITIES", "Methyl,(3^,5,7^)[2]")
+```
+
+```{r}
+# Multiple modifications of a single PTM with any "X" residue
+multiple_modifications("TRICITIES", "Methyl,(1,2,3,4,5,6,7,8,9)[2]")
+```
+
+```{r}
+# Multiple modifications with multiple PTMs examples and the base sequence returned
+multiple_modifications("TRICITIES", "Methyl,(1)[1];Acetyl,(2,4,9)[1]", ReturnUnmodified = TRUE)
+```
+
+```{r}
+# Multiple modifications with multiple PTMs examples and the base sequence returned
+multiple_modifications("TRICITIES", "Methyl,(1,2,3,4,5,6,7,8,9)[1];Acetyl,(2,4,9)[1]", ReturnUnmodified = TRUE)
+```
+
+```{r}
+# Multiple modifications with multiple PTMs examples and the base sequence returned
+multiple_modifications("TRICITIES", "Methyl,(1^,2,3,4,5,6,7^,8,9)[3];1.00727,(2,4,9)[1]", ReturnUnmodified = TRUE)
+```
+
+```{r}
+# Combine single and multiple modification examples
+c(multiple_modifications("TRICITIES", "Methyl,(1,2,3,4,5)[1]"),
+  multiple_modifications("TRICITIES", "Methyl,(1,2,3,4,5)[2]"))
+```
+
+
+
 
 
 
