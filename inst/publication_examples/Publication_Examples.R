@@ -82,6 +82,9 @@ Brunner <- rbind(
   theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5)) +
   ggtitle("Valine Dataset") +
   xlab("") +
+  theme(plot.title = element_text(size = 22), axis.title.y = element_text(size = 20), 
+        axis.text.x = element_text(size = 18), axis.text.y = element_text(size = 18),
+        legend.text = element_text(size = 18), strip.text = element_text(size = 18)) + 
   facet_wrap(.~Ratio)
 
 Brunner
@@ -129,11 +132,15 @@ Pasavento <- IsoForma2[[4]] %>%
    ggplot2::geom_errorbar(ggplot2::aes(ymin = LowerCI, ymax = UpperCI), width = 0.2, position = ggplot2::position_dodge(.9)) +
    theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5)) +
     xlab("") +
+  theme(plot.title = element_text(size = 22), axis.title.y = element_text(size = 20), 
+        axis.text.x = element_text(size = 18), axis.text.y = element_text(size = 18),
+        legend.text = element_text(size = 18), strip.text = element_text(size = 18)) + 
    ggtitle("Histone Dataset")
 
-Brunner + Pasavento + patchwork::plot_annotation(tag_levels = "A")
+Fig1 <- Brunner + Pasavento + patchwork::plot_annotation(tag_levels = "A")
+Fig1
 
-
+ggsave("~/Downloads/IsoForma_Fig1_300dpi.png", dpi = 300)
 
 
 
