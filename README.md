@@ -11,7 +11,7 @@ To get started, read our [vignette](https://emsl-computing.github.io/isoforma-li
 
 You may need to install pspecterlib separately, though it should auto-install
 with the above command. If not, try the command below. Check that both packages 
-install with `library(isoforma-lib)` and `library(pspecterlib)`. If one of the 
+install with `library(isoforma)` and `library(pspecterlib)`. If one of the 
 packages does not install, 
 
 `devtools::install_github("EMSL-Computing/pspecterlib")`
