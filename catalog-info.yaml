@@ -1,0 +1,28 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: isoforma-lib
+  title: IsoForma
+  description: R package for the relative quantitation of proteoforms with MS2 fragmentation patterns
+  annotations:
+    # Conditional host-specific annotations rendered to avoid empty-string values that fail catalog validation.
+    github.com/project-slug: EMSL-Computing/isoforma-lib
+  links:
+    - title:  Repository
+      url: https://github.com/EMSL-Computing/isoforma-lib
+    - title:  Documentation
+      url: https://emsl-computing.github.io/isoforma-lib/
+    - title: Publication
+      url: https://pubmed.ncbi.nlm.nih.gov/38421884/
+  tags:
+    - isomers
+    - proteoforms
+    - r-package
+spec:
+  type: library
+  owner: user:default/david.degnan_pnnl.gov # David Degnan project contributor
+  visibility: private # to expose this item in the catalog to others at PNNL, change the visibility to 'public'
+  # system: 
+  lifecycle: production
+  dependsOn:
+    - component:default/pspecter-lib
